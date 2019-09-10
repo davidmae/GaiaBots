@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Assets.GameFramework.Actor.Core;
 
 
-namespace Assets.GameFramework.Status.Core
+namespace Assets.GameFramework.Status.Interfaces
 {
     public interface IStatus
     {
-        void EvaluateStatus();
+        void EvaluateStatus(BaseActor actor);
     }
 }

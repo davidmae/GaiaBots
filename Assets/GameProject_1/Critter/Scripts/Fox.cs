@@ -8,19 +8,16 @@ namespace Assets.GameProject_1.Status.Scripts
 {
     public class Fox : MonoBehaviour
     {
-        protected BaseActor baseActor;
         protected ActorBehaviour behaviour;
 
         private void Awake()
         {
-            baseActor = new BaseActor() { Name = "Fox" };
-
             var hungryStatus = new HungryStatus(100, 90);
             var rageStatus = new RageStatus(30, 50);
 
             behaviour = new ActorBehaviour()
             {
-                Actor = baseActor,
+                Actor = new BaseActor() { Name = "Fox" },
                 StatusBaseList = new List<StatusBase>() { hungryStatus, rageStatus }
             };
 

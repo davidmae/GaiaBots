@@ -1,13 +1,10 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Status.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.GameFramework.Status.Core
 {
-    public class StatusBase// : IStatus
+    public class StatusBase : IStatus
     {
         public int Value { get; set; }
         public int Limit { get; set; }

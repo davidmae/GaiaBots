@@ -5,10 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Behaviour.Interfaces;
 
 namespace Assets.GameFramework.Behaviour.Core
 {
-    public class ActorBehaviour
+    public class ActorBehaviour : IActorBehaviour
     {
         public BaseActor Actor { get; set; }
         public IList<StatusBase> StatusBaseList { get; set; }
