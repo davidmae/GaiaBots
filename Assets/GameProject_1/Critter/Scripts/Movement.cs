@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.GameFramework.Item.Core;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -6,18 +7,30 @@ using UnityEngine.AI;
 public class Movement : MonoBehaviour
 {
     NavMeshAgent navigator;
-    public float timeForNewPath;
-
-    bool inCoroutine;
     Vector3 target;
-    bool validPath;
     float time = 0;
-    float timeLimit = 1f;
+    float timeLimit = 0.5f;
+
+
+    //TODO: En función de más cosas...
+
+    int eatingTime = 3;
+
+
+    //TODO: Behaviour AI for State management
+
+    bool searching = false;
+    bool eating = false;
+
+    //
 
 
     private void Awake()
     {
         navigator = GetComponent<NavMeshAgent>();
+
+        searching = true;
+        eating = false;
     }
 
     private void Start()
@@ -29,8 +42,23 @@ public class Movement : MonoBehaviour
     {
         Debug.Log("Colission with: " + other);
 
-        if (other.GetType() == typeof(SphereCollider))
-            Debug.Log("---------- Run for your live! ----------");
+        if (other != null)
+        {
+            var item = other.GetComponent<Consumable>();
+
+            if (item != null)
+            {
+                //transform.LookAt(item.transform);
+
+                target = item.transform.position;
+                navigator.SetDestination(target);
+
+                searching = false;
+                eating = true;
+
+            }
+        }
+
     }
 
     private void Update()
@@ -53,21 +81,25 @@ public class Movement : MonoBehaviour
         }
 
 
+        if (Vector3.Distance(transform.position, target) < 4)
+        {
+            Debug.Log("Arrived to position! --- Going to new random position ---");
+
+            if (eating)
+            {
+                StartCoroutine(IsEating());
+            }
+
+            GoRandomPosition();
+        }
+
         time += Time.deltaTime;
 
         if (time >= timeLimit)
         {
-            if (Vector3.Distance(transform.position, target) < 5 ) 
-            {
-                Debug.Log("Arrived to position! --- Going to new random position ---");
-                GoRandomPosition();
-            }
-
+            Debug.Log(Vector3.Distance(transform.position, target));
             time = 0;
         }
-
-        //if (!inCoroutine)
-        //    StartCoroutine(DoSomething());
     }
 
     private void GoRandomPosition()
@@ -81,23 +113,13 @@ public class Movement : MonoBehaviour
     }
 
 
-
-    //private IEnumerator DoSomething()
-    //{
-    //    inCoroutine = true;
-    //    yield return new WaitForSeconds(timeForNewPath);
-    //    GetNewPath();
-    //    validPath = navigator.CalculatePath(target, path);
-    //    if (!validPath) Debug.Log("Found an invalid Path");
-
-    //    while (!validPath)
-    //    {
-    //        yield return new WaitForSeconds(0.01f);
-    //        GetNewPath();
-    //        validPath = navigator.CalculatePath(target, path);
-    //    }
-    //    inCoroutine = false;
-    //}
+    private IEnumerator IsEating()
+    {
+        navigator.isStopped = true;
+        yield return new WaitForSeconds( eatingTime );
+        navigator.isStopped = false;
+        eating = false;
+    }
 
 
 }
