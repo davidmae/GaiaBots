@@ -5,6 +5,6 @@ namespace Assets.GameFramework.Status.Interfaces
 {
     public interface IStatus
     {
-        void EvaluateStatus(BaseActor actor);
+        void EvaluateStatus(ActorBase actor);
     }
 }

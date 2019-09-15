@@ -14,7 +14,7 @@ namespace Assets.GameProject_1.Status
     {
         public RageStatus(int value, int limit) : base(value, limit) { }
 
-        public void IsRage(BaseActor actor)
+        public void IsRage(ActorBase actor)
         {
             if (Value < Limit)
             {

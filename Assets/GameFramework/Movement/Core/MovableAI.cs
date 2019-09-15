@@ -22,6 +22,5 @@ namespace Assets.GameFramework.Behaviour.Core
         public void MoveToTarget()
             => Navigator.SetDestination(Target);
 
-        
     }
 }

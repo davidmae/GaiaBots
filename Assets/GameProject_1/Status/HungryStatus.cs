@@ -14,7 +14,7 @@ namespace Assets.GameProject_1.Status
     {
         public HungryStatus(int value, int limit) : base(value, limit) { }
 
-        public void IsHungry(BaseActor actor)
+        public void IsHungry(ActorBase actor)
         {
             if (Value < Limit)
             {
