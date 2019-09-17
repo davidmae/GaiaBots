@@ -20,10 +20,14 @@ namespace Assets.GameProject_1.Critter.Scripts
     [RequireComponent(typeof(Rigidbody))]
     public class CritterBase : MonoBehaviour
     {
+        [SerializeField]
         protected ActorBehaviour _behaviour;
 
         [SerializeField]
-        protected CritterData CritterData;
+        protected CritterData critterData;
+
+        [SerializeField]
+        protected List<StatusData> _critterStatus;
 
 
         public float time = 0;
@@ -37,17 +41,12 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void Awake()
         {
-            var hungryStatus = new HungryStatus(75, 100);
-            var rageStatus = new RageStatus(75, 100);
             var navigator = GetComponent<NavMeshAgent>();
-
-            CritterData.Name = "CritterBase";
 
             _behaviour = new ActorBehaviour()
             {
                 Actor = new ActorBase() { Name = "CritterBase" },
-                Movement = new MovableAI() { Navigator = navigator },
-                StatusBaseList = new List<StatusBase>() { hungryStatus, rageStatus }
+                Movement = new MovableAI() { Navigator = navigator }
             };
 
             searching = true;
@@ -59,16 +58,14 @@ namespace Assets.GameProject_1.Critter.Scripts
             sphereCollider.radius = 2;
             sphereCollider.isTrigger = true;
 
-            //_behaviour.SetEvaluateStatusAction<HungryStatus>(hungryStatus.IsHungry);
-            //_behaviour.SetEvaluateStatusAction<RageStatus>(rageStatus.IsRage);
 
-            ////...
-            //_behaviour.EvaluateStatus();
+            _behaviour.Movement.Navigator.speed = critterData.Speed;
+            _behaviour.Movement.Navigator.acceleration = critterData.Acceleration;
         }
 
         private void Start()
         {
-            _behaviour.DoNextMovement();
+            _behaviour.MoveToPosition();
         }
 
         private void Update()
@@ -91,9 +88,10 @@ namespace Assets.GameProject_1.Critter.Scripts
                 //Debug.Log($"Raycasthit :: {obstacle}");
             }
 
-
+            
             //TODO: Cambiar parametro
-            if (Vector3.Distance(transform.position, _behaviour.Movement.Target) < 3)
+            //if (Vector3.Distance(transform.position, _behaviour.Movement.Target) < 3)
+            if ((transform.position - _behaviour.Movement.Target).sqrMagnitude < 3 * 3)
             {
                 Debug.Log($"{gameObject.name} :: Arrived to position! --- Going to new random position ---");
 
@@ -103,7 +101,7 @@ namespace Assets.GameProject_1.Critter.Scripts
                 }
                 else
                 {
-                    _behaviour.DoNextMovement();
+                    _behaviour.MoveToPosition();
                 }
             }
 
@@ -119,7 +117,12 @@ namespace Assets.GameProject_1.Critter.Scripts
         private IEnumerator IsEating()
         {
             _behaviour.Movement.Navigator.isStopped = true;
-            yield return new WaitForSeconds(CritterData.EatingTime);
+
+            //_critterStatus[StatusData.StatusTypes.Hungry].UpdateStatus();
+            _critterStatus.Where(s => s.Type == StatusData.StatusTypes.Hungry).FirstOrDefault()
+                .Status.UpdateStatus(10);
+
+            yield return new WaitForSeconds(critterData.EatingTime);
             _behaviour.Movement.Navigator.isStopped = false;
             eating = false;
         }
@@ -137,7 +140,7 @@ namespace Assets.GameProject_1.Critter.Scripts
                 {
                     //transform.LookAt(item.transform);
                     _behaviour.Movement.SetNextTarget(item.transform.position);
-                    _behaviour.DoNextMovement(item.transform.position);
+                    _behaviour.MoveToPosition(item.transform.position);
 
                     searching = false;
                     eating = true;

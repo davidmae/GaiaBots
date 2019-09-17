@@ -10,7 +10,9 @@ namespace Assets.GameFramework.Behaviour.Interfaces
 {
     public interface IActorBehaviour
     {
-        void SetEvaluateStatusAction<T>(Action<ActorBase> evaluate) where T : StatusBase;
-        void EvaluateStatus();
+        void MoveToPosition(Vector3 position);
+
+        //void SetEvaluateStatusAction<T>(Action<ActorBase> evaluate) where T : StatusBase;
+        //void EvaluateStatus();
     }
 }

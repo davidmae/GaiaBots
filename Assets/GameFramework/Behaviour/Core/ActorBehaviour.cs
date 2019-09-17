@@ -1,41 +1,19 @@
-﻿using Assets.GameFramework.Status.Core;
-using System;
+﻿using System;
 using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Behaviour.Interfaces;
-using Assets.GameFramework.Movement.Core;
 
 namespace Assets.GameFramework.Behaviour.Core
 {
+    [Serializable]
     public class ActorBehaviour : IActorBehaviour
     {
         public ActorBase Actor { get; set; }
         public IMovable Movement { get; set; }
 
-        public IList<StatusBase> StatusBaseList { get; set; }
-
-        public void SetEvaluateStatusAction<T>(Action<ActorBase> evaluate)
-            where T : StatusBase
-        {
-            StatusBaseList
-                .Where(status => status is T)
-                .FirstOrDefault()
-                .onStatusChange += evaluate;
-        }
-
-        public void EvaluateStatus()
-        {
-            foreach (var status in StatusBaseList)
-            {
-                status.EvaluateStatus(Actor);
-            }
-        }
-
         //TODO: Cambiar
-        public void DoNextMovement(Vector3 position = new Vector3())
+        public void MoveToPosition(Vector3 position = new Vector3())
         {
             if (position == Vector3.zero)
             {
@@ -53,12 +31,34 @@ namespace Assets.GameFramework.Behaviour.Core
                 //GameObject.Destroy(marker, 1f);
 
                 //Debug.Log($"Physics.CheckSphere {Actor.Name} ::: {Physics.CheckSphere(position, 4f)}");
-                Debug.Log($"Physics.OverlapSphere {Actor.Name} ::: {Physics.OverlapSphere(position, 4f)}");
+                //Debug.Log($"Physics.OverlapSphere {Actor.Name} ::: {Physics.OverlapSphere(position, 4f)}");
             }
 
             Movement.SetNextTarget(position);
             Movement.MoveToTarget();
         }
 
+
+        #region old_
+        //[SerializeField]
+        //public List<StatusBase> StatusBaseList;
+
+        //public void SetEvaluateStatusAction<T>(Action<ActorBase> evaluate)
+        //    where T : StatusBase
+        //{
+        //    StatusBaseList
+        //        .Where(status => status is T)
+        //        .FirstOrDefault()
+        //        .onStatusChange += evaluate;
+        //}
+
+        //public void EvaluateStatus()
+        //{
+        //    foreach (var status in StatusBaseList)
+        //    {
+        //        status.EvaluateStatus(Actor);
+        //    }
+        //}
+        #endregion
     }
 }

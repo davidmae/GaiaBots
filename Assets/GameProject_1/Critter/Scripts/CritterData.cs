@@ -1,19 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.AI;
-using Assets.GameProject_1.Critter.Scripts;
-using Assets.GameFramework.Behaviour.Core;
-using Assets.GameFramework.Actor.Core;
-using Assets.GameFramework.Status.Core;
-using System;
+﻿using UnityEngine;
 
 namespace Assets.GameProject_1.Status.Scripts
 {
-    [Serializable]
-    public struct CritterData
+    [CreateAssetMenu(fileName = "CritterData", menuName = "GameProject_1/CritterData", order = 0)]
+    public class CritterData : ScriptableObject
     {
         public string Name;
         public float EatingTime;
+        public float Speed;
+        public float Acceleration;
     }
 }

@@ -12,14 +12,12 @@ namespace Assets.GameProject_1.Status
 {
     public class HungryStatus : StatusBase
     {
-        public HungryStatus(int value, int limit) : base(value, limit) { }
+        public HungryStatus(StatusData.StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
 
-        public void IsHungry(ActorBase actor)
+        public override void UpdateStatus(int value)
         {
-            if (Value < Limit)
-            {
-                Debug.Log($"{actor.Name} is hungry!!");
-            }
+            base.UpdateStatus(value);
+            Debug.Log($" ------ Hungry !!!!! ------ ");
         }
 
     }
