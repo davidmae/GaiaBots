@@ -27,7 +27,7 @@ namespace Assets.GameProject_1.Critter.Scripts
         protected CritterData critterData;
 
         [SerializeField]
-        protected List<StatusData> _critterStatus;
+        protected List<StatusData> _statusData;
 
 
         public float time = 0;
@@ -36,6 +36,9 @@ namespace Assets.GameProject_1.Critter.Scripts
         //TODO: Behaviour AI for State management
         public bool searching = false;
         public bool eating = false;
+
+
+        public int hungry = 0;
 
         bool inCoroutine = false;
 
@@ -101,6 +104,13 @@ namespace Assets.GameProject_1.Critter.Scripts
                 }
                 else
                 {
+
+                    //TODO: CAMBIAR DE SITIO
+                    var hungryData = _statusData.Where(s => s.Type == StatusData.StatusTypes.Hungry).FirstOrDefault();
+                    hungryData.Status.UpdateStatus(10);
+
+                    this.hungry = hungryData.Status.Current;
+
                     _behaviour.MoveToPosition();
                 }
             }
@@ -117,11 +127,6 @@ namespace Assets.GameProject_1.Critter.Scripts
         private IEnumerator IsEating()
         {
             _behaviour.Movement.Navigator.isStopped = true;
-
-            //_critterStatus[StatusData.StatusTypes.Hungry].UpdateStatus();
-            _critterStatus.Where(s => s.Type == StatusData.StatusTypes.Hungry).FirstOrDefault()
-                .Status.UpdateStatus(10);
-
             yield return new WaitForSeconds(critterData.EatingTime);
             _behaviour.Movement.Navigator.isStopped = false;
             eating = false;
