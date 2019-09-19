@@ -1443,7 +1443,7 @@ PrefabInstance:
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.85
+      value: -7.46
       objectReference: {fileID: 0}
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -1453,7 +1453,7 @@ PrefabInstance:
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.22
+      value: -3.67
       objectReference: {fileID: 0}
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -1495,21 +1495,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1920584860672544696, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: _behaviour.StatusBaseList.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1920584860672544696, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: _critterStatus.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1920584860672544696, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: _critterStatus.Array.data[0]
-      value: 
-      objectReference: {fileID: 11400000, guid: 729f403a338028a4d97330ce4d900f17,
-        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87b82f906855dd84986a00b2004f0371, type: 3}

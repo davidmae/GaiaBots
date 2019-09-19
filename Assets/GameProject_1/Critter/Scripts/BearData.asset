@@ -16,3 +16,4 @@ MonoBehaviour:
   EatingTime: 3
   Speed: 5
   Acceleration: 5
+  StopingDistance: 3

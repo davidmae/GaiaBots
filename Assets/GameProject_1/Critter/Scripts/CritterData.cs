@@ -9,5 +9,6 @@ namespace Assets.GameProject_1.Status.Scripts
         public float EatingTime;
         public float Speed;
         public float Acceleration;
+        public float StopingDistance;
     }
 }

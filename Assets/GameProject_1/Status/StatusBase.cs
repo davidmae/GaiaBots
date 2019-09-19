@@ -10,11 +10,11 @@ namespace Assets.GameProject_1.Status
 {
     public abstract class StatusBase : GameFramework.Status.Core.Status
     {
-        public StatusData.StatusTypes Type;
+        public StatusTypes Type;
         public int Current;
         public int Treshold;
 
-        public StatusBase(StatusData.StatusTypes type, int current, int treshold)
+        public StatusBase(StatusTypes type, int current, int treshold)
         {
             Type = type;
             Current = current;

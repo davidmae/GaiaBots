@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.GameFramework.Actor.Core
 {
-    public class ActorBase
+    public class ActorBase : MonoBehaviour
     {
-        public string Name { get; set; }
+        //public MonoBehaviour MonoBehaviour { get; set; }
     }
 }

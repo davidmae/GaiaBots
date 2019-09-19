@@ -1,6 +1,7 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using Assets.GameProject_1.Status;
 using Assets.GameProject_1.Status.Scripts;
@@ -18,29 +19,18 @@ namespace Assets.GameProject_1.Critter.Scripts
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(SphereCollider))]
     [RequireComponent(typeof(Rigidbody))]
-    public class CritterBase : MonoBehaviour
+    public class CritterBase : ActorBase
     {
-        [SerializeField]
+        [SerializeField] protected CritterData  critterData;
+        [SerializeField] protected List<StatusData> statusData;
+
+
         protected ActorBehaviour _behaviour;
-
-        [SerializeField]
-        protected CritterData critterData;
-
-        [SerializeField]
-        protected List<StatusData> _statusData;
+        protected IDictionary<StatusTypes, StatusBase> statusInstances;
 
 
-        public float time = 0;
-        public float timeLimit = 0.5f;
-        
-        //TODO: Behaviour AI for State management
-        public bool searching = false;
-        public bool eating = false;
+        private IItem currentItem;
 
-
-        public int hungry = 0;
-
-        bool inCoroutine = false;
 
         private void Awake()
         {
@@ -48,13 +38,12 @@ namespace Assets.GameProject_1.Critter.Scripts
 
             _behaviour = new ActorBehaviour()
             {
-                Actor = new ActorBase() { Name = "CritterBase" },
-                Movement = new MovableAI() { Navigator = navigator }
+                Actor = this,
+                Movement = new MovableAI() { Navigator = navigator },
+                CurrentState = new States()
             };
 
-            searching = true;
-            eating = false;
-
+            statusInstances = statusData.InitializeStatusInstancesFromStatusData();
 
             //TODO: Parametros ¿behaviour?
             var sphereCollider = GetComponent<SphereCollider>();
@@ -73,6 +62,7 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void Update()
         {
+            #region Debugging
             Ray ray = new Ray(transform.position, transform.forward);
             RaycastHit hitInfo;
 
@@ -90,69 +80,57 @@ namespace Assets.GameProject_1.Critter.Scripts
                 //TODO: ajustes de IA 
                 //Debug.Log($"Raycasthit :: {obstacle}");
             }
+            #endregion
 
-            
-            //TODO: Cambiar parametro
-            //if (Vector3.Distance(transform.position, _behaviour.Movement.Target) < 3)
-            if ((transform.position - _behaviour.Movement.Target).sqrMagnitude < 3 * 3)
-            {
-                Debug.Log($"{gameObject.name} :: Arrived to position! --- Going to new random position ---");
+            _behaviour.CheckPosition(transform.position, critterData.StopingDistance);
 
-                if (eating)
-                {
-                    StartCoroutine(IsEating());
-                }
-                else
-                {
-
-                    //TODO: CAMBIAR DE SITIO
-                    var hungryData = _statusData.Where(s => s.Type == StatusData.StatusTypes.Hungry).FirstOrDefault();
-                    hungryData.Status.UpdateStatus(10);
-
-                    this.hungry = hungryData.Status.Current;
-
-                    _behaviour.MoveToPosition();
-                }
-            }
-
-            time += Time.deltaTime;
-
-            if (time >= timeLimit)
-            {
-                Debug.Log(Vector3.Distance(transform.position, _behaviour.Movement.Target));
-                time = 0;
-            }
+            #region Debugging
+            //time += Time.deltaTime;
+            //if (time >= timeLimit)
+            //{
+            //    Debug.Log("Distance to target: " + Vector3.Distance(transform.position, _behaviour.Movement.Target));
+            //    time = 0;
+            //}
+            #endregion
         }
-
-        private IEnumerator IsEating()
-        {
-            _behaviour.Movement.Navigator.isStopped = true;
-            yield return new WaitForSeconds(critterData.EatingTime);
-            _behaviour.Movement.Navigator.isStopped = false;
-            eating = false;
-        }
-
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("Colission with: " + other);
-
             if (other != null)
             {
                 var item = other.GetComponent<Consumable>();
 
                 if (item != null)
                 {
-                    //transform.LookAt(item.transform);
+                    //Si el item es consumable (expandir para otros items!!)
+
+                    currentItem = item;
+
+                    _behaviour.OnNextAction += StayFrontItem;
                     _behaviour.Movement.SetNextTarget(item.transform.position);
                     _behaviour.MoveToPosition(item.transform.position);
 
-                    searching = false;
-                    eating = true;
+                    _behaviour.CurrentState.UpdateStates(true, false, false);
 
                 }
             }
+        }
 
+        public IEnumerator StayFrontItem()
+        {
+            _behaviour.CurrentState.UpdateStates(false, true, false);
+
+            _behaviour.Movement.Navigator.isStopped = true;
+            yield return new WaitForSeconds(critterData.EatingTime); //<-- eatingTime dependerá del item (TODO)
+            _behaviour.Movement.Navigator.isStopped = false;
+
+            if (currentItem != null)
+            {
+                statusInstances[StatusTypes.Hungry].UpdateStatus(10);
+                currentItem = null;
+            }
+
+            _behaviour.CurrentState.UpdateStates(false, false, true);
         }
     }
 }

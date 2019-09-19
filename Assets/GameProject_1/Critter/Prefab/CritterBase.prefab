@@ -178,10 +178,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   critterData: {fileID: 11400000, guid: 349be7c3e3595f74c9157b04787ead9f, type: 2}
-  _statusData:
+  statusData:
   - {fileID: 11400000, guid: 729f403a338028a4d97330ce4d900f17, type: 2}
   time: 0
-  timeLimit: 0.5
+  timeLimit: 5
   searching: 0
   eating: 0
+  moving: 0
   hungry: 0
