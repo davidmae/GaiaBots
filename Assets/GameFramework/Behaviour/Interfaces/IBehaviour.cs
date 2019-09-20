@@ -10,7 +10,7 @@ namespace Assets.GameFramework.Behaviour.Interfaces
 {
     public interface IActorBehaviour
     {
-        void CheckPosition(Vector3 position, float stoppingDistance);
+        bool ArrivedToPosition(Vector3 position, float stoppingDistance);
         void MoveToPosition(Vector3 position);
 
         //void SetEvaluateStatusAction<T>(Action<ActorBase> evaluate) where T : StatusBase;

@@ -1,4 +1,5 @@
 ﻿using Assets.GameFramework.Behaviour.Core;
+using Assets.GameFramework.Status.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Assets.GameFramework.Actor.Core
 {
     public class ActorBase : MonoBehaviour
     {
-        //public MonoBehaviour MonoBehaviour { get; set; }
+        public ActorBehaviour Behaviour { get; set; }
+        public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
     }
 }

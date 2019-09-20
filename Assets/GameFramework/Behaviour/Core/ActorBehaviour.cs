@@ -4,34 +4,42 @@ using UnityEngine;
 using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Behaviour.Interfaces;
 using System.Collections;
+using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Item.Interfaces;
+using Assets.GameFramework.Status.Core;
 
 namespace Assets.GameFramework.Behaviour.Core
 {
-    [Serializable]
     public class ActorBehaviour : MonoBehaviour, IActorBehaviour
     {
         public ActorBase Actor { get; set; }
         public IMovable Movement { get; set; }
+        public StateMachine StateMachine { get; set; }
 
-        public States CurrentState;
-
-
-        public event Func<IEnumerator> OnNextAction;
-
-        public void CheckPosition(Vector3 position, float stoppingDistance)
+        public ActorBehaviour(ActorBase actor, IMovable movement, StateMachine stateMachine)
         {
-            //if (Vector3.Distance(transform.position, _behaviour.Movement.Target) < 3)
+            Actor = actor;
+            Movement = movement;
+            StateMachine = stateMachine;
+
+            StateMachine.Actor = Actor;
+        }
+
+        public bool ArrivedToPosition(Vector3 position, float stoppingDistance)
+        {
             if ((position - Movement.Target).sqrMagnitude < stoppingDistance * stoppingDistance)
             {
-                if (CurrentState.searching)
+                if (StateMachine.IsSearching)
                 {
-                    Actor.StartCoroutine(OnNextAction());
+                    return true;
                 }
                 else
                 {
                     MoveToPosition();
                 }
             }
+
+            return false;
         }
 
 
@@ -87,19 +95,74 @@ namespace Assets.GameFramework.Behaviour.Core
         #endregion
     }
 
+    public class StateMachine
+    {
+        public ActorBase Actor { get; set; }
+        public States States { get; set; }
+
+        public StateMachine()
+        {
+            States = new States();
+        }
+
+        public void Detect(Collider other)
+        {
+            var item = other.GetComponent<Consumable>();
+
+            if (item != null)
+            {
+                //Si el item es consumable (expandir para otros items!!)
+                item.CurrentActor = Actor;
+                item.DoAction();
+            }
+        }
+
+        public void UpdateStates(bool search = false, bool eat = false, bool move = false, bool escape = false)
+        {
+            States.searching = search;
+            States.eating = eat;
+            States.moving = move;
+            States.escaping = escape;
+        }
+
+        public IEnumerator StayFront(float seconds)
+        {
+            if (Actor != null)
+            {
+                Actor.Behaviour.StateMachine.UpdateStates(eat: true);
+
+                Actor.Behaviour.Movement.Navigator.isStopped = true;
+                yield return new WaitForSeconds(seconds); //<-- eatingTime dependerá del item (TODO)
+                Actor.Behaviour.Movement.Navigator.isStopped = false;
+
+                Actor.StatusInstances[StatusTypes.Hungry].UpdateStatus(10);
+
+                UpdateStates(move: true);
+
+                Actor = null;
+            }
+        }
+
+
+
+        public bool IsMoving => States.moving == true;
+
+        public bool IsSearching => States.searching == true;
+
+        public bool IsEating => States.eating == true;
+
+
+
+
+    }
+
     //TO DO: CAMBIAR... 
     public class States
     {
         public bool searching = false;
         public bool eating = false;
         public bool moving = false;
-
-        public void UpdateStates(bool search, bool eat, bool move)
-        {
-            searching = search;
-            eating = eat;
-            moving = move;
-        }
+        public bool escaping = false;
     }
 
 }

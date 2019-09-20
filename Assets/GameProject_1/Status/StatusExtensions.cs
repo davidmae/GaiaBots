@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-
+using Assets.GameFramework.Status.Core;
 
 namespace Assets.GameProject_1.Status
 {

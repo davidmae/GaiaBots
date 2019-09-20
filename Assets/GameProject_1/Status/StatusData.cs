@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.GameFramework.Status.Core;
+using UnityEngine;
 
 
 namespace Assets.GameProject_1.Status

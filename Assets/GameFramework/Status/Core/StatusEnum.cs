@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace Assets.GameProject_1.Status
+namespace Assets.GameFramework.Status.Core
 {
     public enum StatusTypes
     {

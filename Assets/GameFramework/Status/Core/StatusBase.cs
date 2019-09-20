@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Status.Interfaces;
+using System;
 using UnityEngine;
 
-
-namespace Assets.GameProject_1.Status
+namespace Assets.GameFramework.Status.Core
 {
-    public abstract class StatusBase : GameFramework.Status.Core.Status
+    public abstract class StatusBase : IStatus
     {
         public StatusTypes Type;
         public int Current;
@@ -21,7 +18,7 @@ namespace Assets.GameProject_1.Status
             Treshold = treshold;
         }
 
-        public override void UpdateStatus(int value)
+        public virtual void UpdateStatus(int value)
         {
             Current += value;
             if (Current < Treshold)

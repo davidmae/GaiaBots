@@ -10,6 +10,11 @@ namespace Assets.GameFramework.Behaviour.Core
         public NavMeshAgent Navigator { get; set; }
         public Vector3 Target { get; set; }
 
+        public MovableAI(NavMeshAgent navigator)
+        {
+            Navigator = navigator;
+        }
+
         public void SetNextTarget(float x, float y, float z)
             => Target = new Vector3(x, 0, z);
 

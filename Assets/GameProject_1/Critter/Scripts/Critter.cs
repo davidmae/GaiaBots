@@ -19,45 +19,32 @@ namespace Assets.GameProject_1.Critter.Scripts
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(SphereCollider))]
     [RequireComponent(typeof(Rigidbody))]
-    public class CritterBase : ActorBase
+    public class Critter : ActorBase
     {
-        [SerializeField] protected CritterData  critterData;
+        [SerializeField] protected CritterData critterData;
         [SerializeField] protected List<StatusData> statusData;
 
-
-        protected ActorBehaviour _behaviour;
-        protected IDictionary<StatusTypes, StatusBase> statusInstances;
-
-
-        private IItem currentItem;
+        private IConsumable currentItem;
 
 
         private void Awake()
         {
             var navigator = GetComponent<NavMeshAgent>();
 
-            _behaviour = new ActorBehaviour()
-            {
-                Actor = this,
-                Movement = new MovableAI() { Navigator = navigator },
-                CurrentState = new States()
-            };
+            base.Behaviour = new ActorBehaviour(this, new MovableAI(navigator), new StateMachine());
+            base.StatusInstances = statusData.InitializeStatusInstancesFromStatusData();
 
-            statusInstances = statusData.InitializeStatusInstancesFromStatusData();
-
-            //TODO: Parametros ¿behaviour?
             var sphereCollider = GetComponent<SphereCollider>();
             sphereCollider.radius = 2;
             sphereCollider.isTrigger = true;
-
-
-            _behaviour.Movement.Navigator.speed = critterData.Speed;
-            _behaviour.Movement.Navigator.acceleration = critterData.Acceleration;
+             
+            Behaviour.Movement.Navigator.speed = critterData.Speed;
+            Behaviour.Movement.Navigator.acceleration = critterData.Acceleration;
         }
 
         private void Start()
         {
-            _behaviour.MoveToPosition();
+            Behaviour.MoveToPosition();
         }
 
         private void Update()
@@ -82,7 +69,12 @@ namespace Assets.GameProject_1.Critter.Scripts
             }
             #endregion
 
-            _behaviour.CheckPosition(transform.position, critterData.StopingDistance);
+            if (Behaviour.ArrivedToPosition(transform.position, critterData.StopingDistance))
+            {
+                if (currentItem != null)
+                    StartCoroutine(Behaviour.StateMachine.StayFront(critterData.EatingTime));
+            }
+
 
             #region Debugging
             //time += Time.deltaTime;
@@ -97,40 +89,25 @@ namespace Assets.GameProject_1.Critter.Scripts
         private void OnTriggerEnter(Collider other)
         {
             if (other != null)
-            {
-                var item = other.GetComponent<Consumable>();
+                Behaviour.StateMachine.Detect(other);
 
-                if (item != null)
-                {
-                    //Si el item es consumable (expandir para otros items!!)
-
-                    currentItem = item;
-
-                    _behaviour.OnNextAction += StayFrontItem;
-                    _behaviour.Movement.SetNextTarget(item.transform.position);
-                    _behaviour.MoveToPosition(item.transform.position);
-
-                    _behaviour.CurrentState.UpdateStates(true, false, false);
-
-                }
-            }
         }
 
-        public IEnumerator StayFrontItem()
-        {
-            _behaviour.CurrentState.UpdateStates(false, true, false);
+        //public IEnumerator StayFrontItem()
+        //{
+        //    behaviour.CurrentState.UpdateStates(false, true, false);
 
-            _behaviour.Movement.Navigator.isStopped = true;
-            yield return new WaitForSeconds(critterData.EatingTime); //<-- eatingTime dependerá del item (TODO)
-            _behaviour.Movement.Navigator.isStopped = false;
+        //    behaviour.Movement.Navigator.isStopped = true;
+        //    yield return new WaitForSeconds(critterData.EatingTime); //<-- eatingTime dependerá del item (TODO)
+        //    behaviour.Movement.Navigator.isStopped = false;
 
-            if (currentItem != null)
-            {
-                statusInstances[StatusTypes.Hungry].UpdateStatus(10);
-                currentItem = null;
-            }
+        //    if (currentItem != null)
+        //    {
+        //        statusInstances[StatusTypes.Hungry].UpdateStatus(10);
+        //        currentItem = null;
+        //    }
 
-            _behaviour.CurrentState.UpdateStates(false, false, true);
-        }
+        //    behaviour.CurrentState.UpdateStates(false, false, true);
+        //}
     }
 }

@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
 namespace Assets.GameProject_1.Status
 {
     public class HungryStatus : StatusBase
