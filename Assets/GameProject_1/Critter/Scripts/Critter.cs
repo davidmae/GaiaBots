@@ -61,12 +61,6 @@ namespace Assets.GameProject_1.Critter.Scripts
             {
                 Debug.DrawLine(transform.position, ray.origin + ray.direction * 100, Color.green);
             }
-
-            if (hitInfo.collider != null)
-            {
-                //TODO: ajustes de IA 
-                //Debug.Log($"Raycasthit :: {obstacle}");
-            }
             #endregion
 
             if (Behaviour.ArrivedToPosition(transform.position, critterData.StopingDistance))
@@ -89,7 +83,10 @@ namespace Assets.GameProject_1.Critter.Scripts
         private void OnTriggerEnter(Collider other)
         {
             if (other != null)
+            {
+                currentItem = other.GetComponent<Consumable>();
                 Behaviour.StateMachine.Detect(other);
+            }
 
         }
 

@@ -127,19 +127,19 @@ namespace Assets.GameFramework.Behaviour.Core
 
         public IEnumerator StayFront(float seconds)
         {
-            if (Actor != null)
-            {
-                Actor.Behaviour.StateMachine.UpdateStates(eat: true);
+            UpdateStates(eat: true);
+            Actor.Behaviour.Movement.Navigator.isStopped = true;
 
-                Actor.Behaviour.Movement.Navigator.isStopped = true;
-                yield return new WaitForSeconds(seconds); //<-- eatingTime dependerá del item (TODO)
+            yield return new WaitForSeconds(seconds); //<-- eatingTime dependerá del item (TODO)
+
+            if (IsEating)
+            {
                 Actor.Behaviour.Movement.Navigator.isStopped = false;
 
                 Actor.StatusInstances[StatusTypes.Hungry].UpdateStatus(10);
+                Actor.StatusInstances[StatusTypes.Rage].UpdateStatus(0);
 
                 UpdateStates(move: true);
-
-                Actor = null;
             }
         }
 

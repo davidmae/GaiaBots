@@ -25,6 +25,10 @@ namespace Assets.GameProject_1.Status
                     _instance = new HungryStatus(StatusType, Current, Treshold);
                     return _instance;
 
+                case StatusTypes.Rage:
+                    _instance = new RageStatus(StatusType, Current, Treshold);
+                    return _instance;
+
                 default:
                     break;
             }

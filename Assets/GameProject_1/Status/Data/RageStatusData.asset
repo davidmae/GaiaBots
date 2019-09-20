@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 748faf1fa7b4ac84887163f41a429c4b, type: 3}
-  m_Name: HungryStatus
+  m_Name: RageStatusData
   m_EditorClassIdentifier: 
-  Type: 0
-  Current: 30
-  Treshold: 100
+  StatusType: 1
+  Current: 0
+  Treshold: 1000

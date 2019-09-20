@@ -131,7 +131,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2
+  m_Radius: 3
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!54 &4124919677881968953
 Rigidbody:
@@ -180,9 +180,4 @@ MonoBehaviour:
   critterData: {fileID: 11400000, guid: 349be7c3e3595f74c9157b04787ead9f, type: 2}
   statusData:
   - {fileID: 11400000, guid: 729f403a338028a4d97330ce4d900f17, type: 2}
-  time: 0
-  timeLimit: 5
-  searching: 0
-  eating: 0
-  moving: 0
-  hungry: 0
+  - {fileID: 11400000, guid: 7ef2252147326fe408c8873f5b9b89e1, type: 2}
