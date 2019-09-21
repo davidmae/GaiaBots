@@ -17,7 +17,7 @@ namespace Assets.GameProject_1.Status
         {
             base.UpdateStatus(value);
             if (Current < Treshold)
-                Debug.Log($" ------ Hungry !!!!! ------ ");
+                Debug.Log($" ------ TENGO HAMBRE !!!!! ------ ");
         }
 
     }
