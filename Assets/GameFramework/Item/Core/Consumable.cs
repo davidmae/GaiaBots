@@ -19,8 +19,7 @@ namespace Assets.GameFramework.Item.Core
 
         public void DoAction()
         {
-            CurrentActor.Behaviour.Movement.SetNextTarget(transform.position);
-            CurrentActor.Behaviour.MoveToPosition(transform.position);
+            CurrentActor.Behaviour.Movement.MoveToPosition(transform.position);
             CurrentActor.Behaviour.StateMachine.UpdateStates(search: true);
         }
 

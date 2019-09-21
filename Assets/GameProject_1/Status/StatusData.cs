@@ -29,6 +29,10 @@ namespace Assets.GameProject_1.Status
                     _instance = new RageStatus(StatusType, Current, Treshold);
                     return _instance;
 
+                case StatusTypes.Defecate:
+                    _instance = new DefecateStatus(StatusType, Current, Treshold);
+                    return _instance;
+
                 default:
                     break;
             }
