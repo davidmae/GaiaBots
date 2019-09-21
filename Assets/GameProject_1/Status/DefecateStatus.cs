@@ -9,15 +9,15 @@ using UnityEngine;
 
 namespace Assets.GameProject_1.Status
 {
-    public class RageStatus : StatusBase
+    public class DefecateStatus : StatusBase
     {
-        public RageStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
+        public DefecateStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
 
         public override void UpdateStatus(int value)
         {
             base.UpdateStatus(value);
             if (Current < Treshold)
-                Debug.Log($" ------ QUE ASSCO OSTIA YA !!!!! ------ ");
+                Debug.Log($" ------ ME CAGO !!!!! ------ ");
         }
 
     }
