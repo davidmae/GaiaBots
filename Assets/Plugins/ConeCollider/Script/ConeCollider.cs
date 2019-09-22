@@ -17,6 +17,10 @@ public class ConeCollider : MonoBehaviour {
     [SerializeField]
     private bool m_isFixScale = true;
 
+
+    public float Distance { get => m_distance; }
+
+
     void Awake()
     {
         //リソースロード

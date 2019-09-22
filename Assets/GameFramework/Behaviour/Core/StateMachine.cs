@@ -1,4 +1,5 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Status.Core;
 using System;
@@ -14,52 +15,76 @@ namespace Assets.GameFramework.Behaviour.Core
     public class StateMachine
     {
         public ActorBase Actor { get; set; }
-        public States States { get; set; }
+        public States CurrentState { get; set; }
 
-        public bool IsMoving => States.moving == true;
-        public bool IsSearching => States.searching == true;
-        public bool IsEating => States.eating == true;
+        //public Func<IEnumerator> NextAction { get; set; }
 
 
         public StateMachine(ActorBase actor)
         {
             Actor = actor;
-            States = new States();
+            CurrentState = new States();
         }
 
-        public void Detect(Collider other)
+        public void Detect(IDetectable detectable)
         {
-            var item = other.GetComponent<Consumable>();
+            if (detectable != null)
+                detectable.Detect(Actor);
 
-            if (item != null)
-            {
-                //Si el item es consumable (expandir para otros items!!)
-                item.CurrentActor = Actor;
-                item.DoAction();
-            }
         }
 
-        public void UpdateStates(bool search = false, bool eat = false, bool move = false, bool escape = false)
+        //public void DoNextAction()
+        //{
+        //    Actor.StartCoroutine(NextAction());
+        //}
+
+        public void ExecuteAction(Func<float, IEnumerator> action, float data) // para más tipos de datos ¿? TODO
         {
-            States.searching = search;
-            States.eating = eat;
-            States.moving = move;
-            States.escaping = escape;
+            Actor.StartCoroutine(action(data));
         }
 
-        public IEnumerator StayFront(float seconds)
+        public void UpdateStates(bool move = false, bool gotoEat = false, bool gotoFight = false, bool escape = false, bool eat = false, bool fight = false)
+        {
+            CurrentState.moving = move;
+            CurrentState.goToEat = gotoEat;
+            CurrentState.goToFight = gotoFight;
+            CurrentState.escaping = escape;
+            CurrentState.eating = eat;
+            CurrentState.fighting = fight;
+
+            Actor.CurrentState = CurrentState;
+        }
+
+        public IEnumerator IsEatingRoutine(float seconds)
         {
             UpdateStates(eat: true);
             Actor.Behaviour.Movement.Navigator.isStopped = true;
 
-            yield return new WaitForSeconds(seconds); //<-- eatingTime dependerá del item (TODO)
+            yield return new WaitForSeconds(seconds);
 
-            if (IsEating)
+            if (CurrentState.IsEating)
             {
                 Actor.Behaviour.Movement.Navigator.isStopped = false;
 
                 Actor.StatusInstances[StatusTypes.Hungry].UpdateStatus(10);
                 Actor.StatusInstances[StatusTypes.Rage].UpdateStatus(0);
+
+                UpdateStates(move: true);
+            }
+        }
+        
+        public IEnumerator IsFightingRoutine(float seconds)
+        {
+            UpdateStates(fight: true);
+            Actor.Behaviour.Movement.Navigator.isStopped = true;
+
+            yield return new WaitForSeconds(seconds); //<-- dependerá de la salud del rival (TODO)
+
+            if (CurrentState.IsFighting)
+            {
+                Actor.Behaviour.Movement.Navigator.isStopped = false;
+
+                //
 
                 UpdateStates(move: true);
             }
