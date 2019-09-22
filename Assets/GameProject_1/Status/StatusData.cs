@@ -11,10 +11,9 @@ namespace Assets.GameProject_1.Status
         public int Current;
         public int Treshold;
 
-        private StatusBase _instance;
         public StatusBase StatusInstance
         {
-            get => _instance ?? InitializeStatusBaseType();
+            get => InitializeStatusBaseType();
         }
 
         private StatusBase InitializeStatusBaseType()
@@ -22,16 +21,13 @@ namespace Assets.GameProject_1.Status
             switch (StatusType)
             {
                 case StatusTypes.Hungry:
-                    _instance = new HungryStatus(StatusType, Current, Treshold);
-                    return _instance;
+                    return new HungryStatus(StatusType, Current, Treshold);
 
                 case StatusTypes.Rage:
-                    _instance = new RageStatus(StatusType, Current, Treshold);
-                    return _instance;
+                    return new RageStatus(StatusType, Current, Treshold);
 
                 case StatusTypes.Defecate:
-                    _instance = new DefecateStatus(StatusType, Current, Treshold);
-                    return _instance;
+                    return new DefecateStatus(StatusType, Current, Treshold);
 
                 default:
                     break;

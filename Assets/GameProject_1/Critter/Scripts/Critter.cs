@@ -1,5 +1,6 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Behaviour.Core;
+using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
@@ -18,9 +19,11 @@ namespace Assets.GameProject_1.Critter.Scripts
 {
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(SphereCollider))]
+    [RequireComponent(typeof(ConeCollider))]
     [RequireComponent(typeof(Rigidbody))]
     public class Critter : ActorBase
     {
+        [Header("Data initialization")]
         [SerializeField] protected CritterData critterData;
         [SerializeField] protected List<StatusData> statusData;
 
@@ -30,13 +33,11 @@ namespace Assets.GameProject_1.Critter.Scripts
         private void Awake()
         {
             NavMeshAgent navigator = GetComponent<NavMeshAgent>();
-            SphereCollider sphereCollider = GetComponent<SphereCollider>();
 
             Behaviour = new ActorBehaviour(this, new MovableAI(navigator), new StateMachine(this));
             StatusInstances = statusData.InitializeStatusInstancesFromStatusData();
 
-            sphereCollider.radius = 2;
-            sphereCollider.isTrigger = true;
+            ListStatus = StatusInstances.Select(s => s.Value).ToList();
 
             Behaviour.Movement.Navigator.speed = critterData.Speed;
             Behaviour.Movement.Navigator.acceleration = critterData.Acceleration;
@@ -68,9 +69,13 @@ namespace Assets.GameProject_1.Critter.Scripts
 
             if (Behaviour.Movement.ArrivedToPosition(transform.position, critterData.StopingDistance))
             {
-                if (Behaviour.StateMachine.IsSearching)
+                if (Behaviour.StateMachine.CurrentState.IsGoingToEat)
                 {
-                    StartCoroutine(Behaviour.StateMachine.StayFront(critterData.EatingTime));
+                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsEatingRoutine, critterData.EatingTime);
+                }
+                else if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
+                {
+                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsFightingRoutine, 5f); //<-- TODO
                 }
                 else
                 {
@@ -93,9 +98,21 @@ namespace Assets.GameProject_1.Critter.Scripts
         {
             if (other != null)
             {
-                Behaviour.StateMachine.Detect(other);
+                var detectable = other.GetComponent<IDetectable>();
+                Behaviour.StateMachine.Detect(detectable);
             }
+        }
 
+        private void OnTriggerStay(Collider other)
+        {
+            if (Behaviour.StateMachine.CurrentState.IsMoving)
+                return;
+
+            if (other != null)
+            {
+                var detectable = other.GetComponent<IDetectableDynamic>();
+                Behaviour.StateMachine.Detect(detectable);
+            }
         }
     }
 }

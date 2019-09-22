@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace Assets.GameFramework.Status.Core
 {
-    public abstract class StatusBase : IStatus
+    [Serializable]
+    public class StatusBase : IStatus
     {
         public StatusTypes Type;
         public int Current;
