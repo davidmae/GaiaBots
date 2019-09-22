@@ -1,4 +1,5 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
@@ -11,16 +12,16 @@ using UnityEngine;
 
 namespace Assets.GameFramework.Item.Core
 {
-    public class Consumable : MonoBehaviour, IConsumable
+    public class Consumable : MonoBehaviour, IConsumable, IDetectable
     {
-        public ActorBase CurrentActor { get; set; }
-
         public string satiety;
 
-        public void DoAction()
+        public virtual void Detect(ActorBase actor)
         {
-            CurrentActor.Behaviour.Movement.MoveToPosition(transform.position);
-            CurrentActor.Behaviour.StateMachine.UpdateStates(search: true);
+            actor.Behaviour.Movement.MoveToPosition(transform.position);
+            actor.Behaviour.StateMachine.UpdateStates(gotoEat: true);
+
+            //currentActor.Behaviour.StateMachine.NextAction = currentActor.Behaviour.StateMachine.IsEatingRoutine;
         }
 
     }
