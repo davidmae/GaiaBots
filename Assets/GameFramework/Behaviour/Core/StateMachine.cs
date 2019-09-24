@@ -1,6 +1,7 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
 using System.Collections;
@@ -38,6 +39,11 @@ namespace Assets.GameFramework.Behaviour.Core
         //    Actor.StartCoroutine(NextAction());
         //}
 
+        public void ExecuteAction(Func<IEnumerator> action) // para más tipos de datos ¿? TODO
+        {
+            Actor.StartCoroutine(action());
+        }
+
         public void ExecuteAction(Func<float, IEnumerator> action, float data) // para más tipos de datos ¿? TODO
         {
             Actor.StartCoroutine(action(data));
@@ -55,24 +61,41 @@ namespace Assets.GameFramework.Behaviour.Core
             Actor.CurrentState = CurrentState;
         }
 
-        public IEnumerator IsEatingRoutine(float seconds)
+        public IEnumerator IsEatingRoutine(/*float seconds*/)
         {
+            var consumable = Actor.GetCurrentItem<IConsumable>();
+
+            if (consumable == null)
+            {
+                UpdateStates(move: true);
+                yield return null;
+            }
+
             UpdateStates(eat: true);
             Actor.Behaviour.Movement.Navigator.isStopped = true;
 
-            yield return new WaitForSeconds(seconds);
+            consumable.OnUpdateSatiety += Actor.RestoreHungry;
+            consumable.UseItem();
+
+            yield return new WaitWhile(() => consumable.GetSacietyPoints() > 0);
+
+            //yield return new WaitForSeconds(seconds);
 
             if (CurrentState.IsEating)
             {
                 Actor.Behaviour.Movement.Navigator.isStopped = false;
 
-                Actor.StatusInstances[StatusTypes.Hungry].UpdateStatus(10);
-                Actor.StatusInstances[StatusTypes.Rage].UpdateStatus(0);
+                consumable.OnUpdateSatiety -= Actor.RestoreHungry;
+                consumable.LeaveItem();
+
+                // TODO: Se destruye si se termina su cantidad....
+                consumable.DestroyItem();
+                // 
 
                 UpdateStates(move: true);
             }
         }
-        
+
         public IEnumerator IsFightingRoutine(float seconds)
         {
             UpdateStates(fight: true);
@@ -90,6 +113,6 @@ namespace Assets.GameFramework.Behaviour.Core
             }
         }
 
-        
+
     }
 }
