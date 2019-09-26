@@ -1,6 +1,5 @@
 ﻿using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
-using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
 using System.Collections.Generic;
@@ -12,8 +11,8 @@ namespace Assets.GameFramework.Actor.Core
     {
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
-        public IItem CurrentItem { get; set; }
-
+        public Queue<IDetectable> DetectablesQueue { get; set; } = new Queue<IDetectable>();
+        
 
         [Header("Debugging fields")]
 
@@ -30,9 +29,13 @@ namespace Assets.GameFramework.Actor.Core
             if (visionDistance < detectDistance)
                 return;
 
+            // Solo encara al actor si entra en su rango de vision
+            // Evita que el otro actor tambien lo encare si su vision es menor...
+
             actor.transform.LookAt(this.transform);
             actor.Behaviour.Movement.MoveToPosition(this.transform.position);
             actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
+
 
             //Behaviour.StateMachine.NextAction = Behaviour.StateMachine.IsFightingRoutine;
 
@@ -45,9 +48,9 @@ namespace Assets.GameFramework.Actor.Core
             //Debug.Log($"{name} has detected to {currentActor.name}");
         }
 
-        public T GetCurrentItem<T>() where T : IItem
+        public T GetCurrentDetectable<T>() where T : IDetectable
         {
-            return (T)CurrentItem;
+            return (T)DetectablesQueue?.Peek();
         }
 
         public void RestoreHungry()

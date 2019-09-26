@@ -27,9 +27,9 @@ namespace Assets.GameFramework.Behaviour.Core
             CurrentState = new States();
         }
 
-        public void Detect(IDetectable detectable)
+        public void Detect(Common.IDetectable detectable)
         {
-            if (detectable != null)
+            if (detectable != null && !IfActorIsFull(StatusTypes.Hungry))
                 detectable.Detect(Actor);
 
         }
@@ -61,39 +61,74 @@ namespace Assets.GameFramework.Behaviour.Core
             Actor.CurrentState = CurrentState;
         }
 
-        public IEnumerator IsEatingRoutine(/*float seconds*/)
-        {
-            var consumable = Actor.GetCurrentItem<IConsumable>();
 
-            if (consumable == null)
+        // Condiciones de salida
+        private IEnumerator CheckIfActorFinishWithConsumable(IConsumable consumable, StatusTypes statusType)
+        {
+            bool done = false;
+            while (!done)
             {
-                UpdateStates(move: true);
+                // If consumable is depleted
+                if (consumable.GetSacietyPoints() == 0)
+                    done = true;
+
+                // If actor is full
+                if (IfActorIsFull(statusType))
+                    done = true;
+
                 yield return null;
             }
+        }
 
+        // Condiciones
+        private bool IfActorIsFull(StatusTypes statusType)
+        {
+            var status = Actor.StatusInstances[statusType];
+            return status.Current >= status.MaxValue;
+        }
+
+
+        // Acciones
+        public IEnumerator IsEatingRoutine(/*float seconds*/)
+        {
+            var consumable = Actor.GetCurrentDetectable<IConsumable>();
+
+            if (consumable == null)
+                yield return null;
+            
             UpdateStates(eat: true);
             Actor.Behaviour.Movement.Navigator.isStopped = true;
 
             consumable.OnUpdateSatiety += Actor.RestoreHungry;
             consumable.UseItem();
 
-            yield return new WaitWhile(() => consumable.GetSacietyPoints() > 0);
+            yield return CheckIfActorFinishWithConsumable(consumable, StatusTypes.Hungry);
 
-            //yield return new WaitForSeconds(seconds);
+            Actor.Behaviour.Movement.Navigator.isStopped = false;
+            Actor.DetectablesQueue.Dequeue();
 
-            if (CurrentState.IsEating)
+            consumable.OnUpdateSatiety -= Actor.RestoreHungry;
+            consumable.LeaveItem();
+            consumable.DestroyItem();
+
+            UpdateStates(move: true);
+
+            //TODO
+            if (Actor.DetectablesQueue.Count > 0)
             {
-                Actor.Behaviour.Movement.Navigator.isStopped = false;
-
-                consumable.OnUpdateSatiety -= Actor.RestoreHungry;
-                consumable.LeaveItem();
-
-                // TODO: Se destruye si se termina su cantidad....
-                consumable.DestroyItem();
-                // 
-
-                UpdateStates(move: true);
+                if (IfActorIsFull(StatusTypes.Hungry))
+                {
+                    //TODO: Eliminar todos los items consumables que modifiquen el hambre
+                    // habrá que distinguir según status modificable
+                    Actor.DetectablesQueue.Clear();
+                }
+                else
+                {
+                    var detectable = Actor.GetCurrentDetectable<IDetectable>();
+                    detectable.Detect(Actor);
+                }
             }
+
         }
 
         public IEnumerator IsFightingRoutine(float seconds)

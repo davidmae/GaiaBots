@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Assets.GameFramework.Item.Core
 {
-    public class Consumable : MonoBehaviour, IConsumable, IDetectable
+    public class Consumable : MonoBehaviour, IConsumable
     {
         public int satiety;
 
@@ -20,9 +20,11 @@ namespace Assets.GameFramework.Item.Core
 
         public virtual void Detect(ActorBase actor)
         {
+            if (!actor.DetectablesQueue.Contains(this))
+                actor.DetectablesQueue.Enqueue(this);
+
             actor.Behaviour.Movement.MoveToPosition(transform.position);
             actor.Behaviour.StateMachine.UpdateStates(gotoEat: true);
-            actor.CurrentItem = this;
 
             //currentActor.Behaviour.StateMachine.NextAction = currentActor.Behaviour.StateMachine.IsEatingRoutine;
         }
