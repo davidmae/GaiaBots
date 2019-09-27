@@ -1,31 +1,42 @@
 ﻿using Assets.GameFramework.Behaviour.Interfaces;
+using Assets.GameFramework.Movement.Core;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Assets.GameFramework.Behaviour.Core
 {
-    //[RequireComponent(typeof(NavMeshAgent))]
-    public class MovableAI : IMovable
+    public class MovableAI : Movable
     {
-        public NavMeshAgent Navigator { get; set; }
-        public Vector3 Target { get; set; }
-
         public MovableAI(NavMeshAgent navigator)
         {
             Navigator = navigator;
         }
 
-        public void SetNextTarget(float x, float y, float z)
-            => Target = new Vector3(x, 0, z);
+        public override void MoveToPosition(Vector3 position = new Vector3())
+        {
+            if (position == Vector3.zero)
+            {
+                do
+                {
+                    float x = UnityEngine.Random.Range(-20, 20);
+                    float z = UnityEngine.Random.Range(-20, 20);
+                    position = new Vector3(x, 0, z);
+                }
+                while (Physics.OverlapSphere(position, 4f).Where(c => c.CompareTag("Obstacle")).Count() > 0);
 
-        public void SetNextTarget(Vector3 position)
-            => SetNextTarget(position.x, 0, position.z);
 
-        public void SetNextTarget(Transform transform) 
-            => SetNextTarget(transform.position);
+                // ----------------------------- For debugging ------------------------------
+                //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                //marker.transform.localScale = new Vector3(.1f, 20f, .1f);
+                //GameObject.Instantiate(marker, position, Quaternion.LookRotation(Vector3.zero));
+                //GameObject.Destroy(marker, 1f);
 
-        public void MoveToTarget()
-            => Navigator.SetDestination(Target);
+                //Debug.Log($"Physics.CheckSphere {Actor.Name} ::: {Physics.CheckSphere(position, 4f)}");
+                //Debug.Log($"Physics.OverlapSphere {Actor.Name} ::: {Physics.OverlapSphere(position, 4f)}");
+            }
 
+            base.MoveToPosition(position);
+        }
     }
 }

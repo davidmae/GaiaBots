@@ -9,11 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44026cfd80174d846a8bd7d3f1fa41d7, type: 3}
-  m_Name: BearData
+  m_Script: {fileID: 11500000, guid: 748faf1fa7b4ac84887163f41a429c4b, type: 3}
+  m_Name: DefecateStatusData
   m_EditorClassIdentifier: 
-  Name: Bear
-  EatingTime: 3
-  Speed: 3
-  Acceleration: 30
-  StopingDistance: 3
+  StatusType: 2
+  Current: 0
+  Treshold: 100000

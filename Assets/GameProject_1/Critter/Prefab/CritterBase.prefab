@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 4124919677881968954}
   - component: {fileID: 4124919677881968955}
   - component: {fileID: 4124919677881968952}
-  - component: {fileID: 4124919677881968953}
   - component: {fileID: 8633153111337832269}
   - component: {fileID: 1920584860672544696}
+  - component: {fileID: 4917255667625511460}
   m_Layer: 0
   m_Name: CritterBase
   m_TagString: Untagged
@@ -108,18 +108,18 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5000001
-  m_Speed: 8
-  m_Acceleration: 8
+  m_Speed: 2
+  m_Acceleration: 10
   avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_AngularSpeed: 500
+  m_StoppingDistance: 1.5
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!135 &4124919677881968952
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -128,12 +128,53 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4124919677881968935}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 3
+  m_Radius: 3.2
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!54 &4124919677881968953
+--- !u!114 &8633153111337832269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124919677881968935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 544e52e7528d39543a55e8259cace9bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_angle: 10.6
+  m_distance: 12.53
+  m_isTrigger: 1
+  m_isFixScale: 1
+--- !u!114 &1920584860672544696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4124919677881968935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dfcc0c48c281ad47af22a4c277dc141, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentState:
+    moving: 0
+    goToEat: 0
+    goToFight: 0
+    escaping: 0
+    eating: 0
+    fighting: 0
+  ListStatus: []
+  critterData: {fileID: 11400000, guid: 349be7c3e3595f74c9157b04787ead9f, type: 2}
+  statusData:
+  - {fileID: 11400000, guid: 729f403a338028a4d97330ce4d900f17, type: 2}
+  - {fileID: 11400000, guid: 7ef2252147326fe408c8873f5b9b89e1, type: 2}
+  - {fileID: 11400000, guid: 4679e39305b95564e9b744ebd27cbb4b, type: 2}
+--- !u!54 &4917255667625511460
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,35 +190,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &8633153111337832269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4124919677881968935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 544e52e7528d39543a55e8259cace9bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_angle: 15
-  m_distance: 6
-  m_isTrigger: 1
-  m_isFixScale: 1
---- !u!114 &1920584860672544696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4124919677881968935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dfcc0c48c281ad47af22a4c277dc141, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  critterData: {fileID: 11400000, guid: 349be7c3e3595f74c9157b04787ead9f, type: 2}
-  statusData:
-  - {fileID: 11400000, guid: 729f403a338028a4d97330ce4d900f17, type: 2}
-  - {fileID: 11400000, guid: 7ef2252147326fe408c8873f5b9b89e1, type: 2}
