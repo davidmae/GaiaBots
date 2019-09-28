@@ -87,7 +87,6 @@ namespace Assets.GameProject_1.Critter.Scripts
             }
 
             time += Time.deltaTime;
-
         }
 
 

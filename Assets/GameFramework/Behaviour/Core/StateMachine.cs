@@ -31,13 +31,7 @@ namespace Assets.GameFramework.Behaviour.Core
         {
             if (detectable != null && !IfActorIsFull(StatusTypes.Hungry))
                 detectable.Detect(Actor);
-
         }
-
-        //public void DoNextAction()
-        //{
-        //    Actor.StartCoroutine(NextAction());
-        //}
 
         public void ExecuteAction(Func<IEnumerator> action) // para más tipos de datos ¿? TODO
         {
@@ -69,7 +63,7 @@ namespace Assets.GameFramework.Behaviour.Core
             while (!done)
             {
                 // If consumable is depleted
-                if (consumable.GetSacietyPoints() == 0)
+                if (consumable.GetSacietyPoints() <= 0)
                     done = true;
 
                 // If actor is full
@@ -87,33 +81,8 @@ namespace Assets.GameFramework.Behaviour.Core
             return status.Current >= status.MaxValue;
         }
 
-
-        // Acciones
-        public IEnumerator IsEatingRoutine(/*float seconds*/)
+        private void CheckNextQueueDetectable()
         {
-            var consumable = Actor.GetCurrentDetectable<IConsumable>();
-
-            if (consumable == null)
-                yield return null;
-            
-            UpdateStates(eat: true);
-            Actor.Behaviour.Movement.Navigator.isStopped = true;
-
-            consumable.OnUpdateSatiety += Actor.RestoreHungry;
-            consumable.UseItem();
-
-            yield return CheckIfActorFinishWithConsumable(consumable, StatusTypes.Hungry);
-
-            Actor.Behaviour.Movement.Navigator.isStopped = false;
-            Actor.DetectablesQueue.Dequeue();
-
-            consumable.OnUpdateSatiety -= Actor.RestoreHungry;
-            consumable.LeaveItem();
-            consumable.DestroyItem();
-
-            UpdateStates(move: true);
-
-            //TODO
             if (Actor.DetectablesQueue.Count > 0)
             {
                 if (IfActorIsFull(StatusTypes.Hungry))
@@ -128,7 +97,43 @@ namespace Assets.GameFramework.Behaviour.Core
                     detectable.Detect(Actor);
                 }
             }
+        }
 
+        public IEnumerator IsEatingRoutine(/*float seconds*/)
+        {
+            var consumable = Actor.GetCurrentDetectable<IConsumable>();
+
+            if (consumable == null || consumable.ToString() == "null")
+            {
+                Actor.Behaviour.Movement.Navigator.isStopped = false;
+                Actor.DetectablesQueue.Dequeue();
+                UpdateStates(move: true);
+
+                //TODO
+                CheckNextQueueDetectable();
+            }
+            else
+            {
+                UpdateStates(eat: true);
+                Actor.Behaviour.Movement.Navigator.isStopped = true;
+
+                consumable.OnUpdateSatiety += Actor.RestoreHungry;
+                consumable.UseItem();
+
+                yield return CheckIfActorFinishWithConsumable(consumable, StatusTypes.Hungry);
+
+                Actor.Behaviour.Movement.Navigator.isStopped = false;
+                Actor.DetectablesQueue.Dequeue();
+
+                consumable.OnUpdateSatiety -= Actor.RestoreHungry;
+                consumable.LeaveItem();
+                consumable.DestroyItem();
+
+                UpdateStates(move: true);
+                
+                //TODO
+                CheckNextQueueDetectable();
+            }
         }
 
         public IEnumerator IsFightingRoutine(float seconds)

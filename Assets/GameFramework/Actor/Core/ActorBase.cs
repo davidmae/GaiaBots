@@ -1,5 +1,6 @@
 ﻿using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
 using System.Collections.Generic;
@@ -37,8 +38,6 @@ namespace Assets.GameFramework.Actor.Core
             actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
 
 
-            //Behaviour.StateMachine.NextAction = Behaviour.StateMachine.IsFightingRoutine;
-
             // ----------------------------- For debugging ------------------------------
             //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             //marker.transform.localScale = new Vector3(.1f, 20f, .1f);
@@ -55,7 +54,14 @@ namespace Assets.GameFramework.Actor.Core
 
         public void RestoreHungry()
         {
-            StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
+            int itemSatiety = GetCurrentDetectable<IConsumable>().MinusOneSacietyPoint();
+
+            if (itemSatiety >= 0)
+                StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
+
+            // Debug
+            Debug.Log($"{this.name} --- {GetCurrentDetectable<IConsumable>().GetSacietyPoints()}" +
+                $" --- saciety actor: {StatusInstances[StatusTypes.Hungry].Current}");
         }
     }
 }
