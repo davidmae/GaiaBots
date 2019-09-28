@@ -41,6 +41,7 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void Start()
         {
+            Behaviour.StateMachine.UpdateStates(move: true);
             Behaviour.Movement.MoveToPosition();
         }
 
@@ -86,7 +87,6 @@ namespace Assets.GameProject_1.Critter.Scripts
             }
 
             time += Time.deltaTime;
-
         }
 
 
@@ -101,13 +101,13 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void OnTriggerStay(Collider other)
         {
-            if (Behaviour.StateMachine.CurrentState.IsMoving)
-                return;
-
             if (other != null)
             {
-                var detectable = other.GetComponent<IDetectableDynamic>();
-                Behaviour.StateMachine.Detect(detectable);
+                if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
+                {
+                    var detectable = other.GetComponent<IDetectableDynamic>();
+                    Behaviour.StateMachine.Detect(detectable);
+                }
             }
         }
     }

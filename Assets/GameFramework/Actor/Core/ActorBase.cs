@@ -12,8 +12,8 @@ namespace Assets.GameFramework.Actor.Core
     {
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
-        public IItem CurrentItem { get; set; }
-
+        public Queue<IDetectable> DetectablesQueue { get; set; } = new Queue<IDetectable>();
+        
 
         [Header("Debugging fields")]
 
@@ -30,11 +30,13 @@ namespace Assets.GameFramework.Actor.Core
             if (visionDistance < detectDistance)
                 return;
 
+            // Solo encara al actor si entra en su rango de vision
+            // Evita que el otro actor tambien lo encare si su vision es menor...
+
             actor.transform.LookAt(this.transform);
             actor.Behaviour.Movement.MoveToPosition(this.transform.position);
             actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
 
-            //Behaviour.StateMachine.NextAction = Behaviour.StateMachine.IsFightingRoutine;
 
             // ----------------------------- For debugging ------------------------------
             //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -45,14 +47,21 @@ namespace Assets.GameFramework.Actor.Core
             //Debug.Log($"{name} has detected to {currentActor.name}");
         }
 
-        public T GetCurrentItem<T>() where T : IItem
+        public T GetCurrentDetectable<T>() where T : IDetectable
         {
-            return (T)CurrentItem;
+            return (T)DetectablesQueue?.Peek();
         }
 
         public void RestoreHungry()
         {
-            StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
+            int itemSatiety = GetCurrentDetectable<IConsumable>().MinusOneSacietyPoint();
+
+            if (itemSatiety >= 0)
+                StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
+
+            // Debug
+            Debug.Log($"{this.name} --- {GetCurrentDetectable<IConsumable>().GetSacietyPoints()}" +
+                $" --- saciety actor: {StatusInstances[StatusTypes.Hungry].Current}");
         }
     }
 }
