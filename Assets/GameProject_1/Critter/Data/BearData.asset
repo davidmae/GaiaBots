@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Bear
   EatingTime: 3
-  Speed: 2
-  Acceleration: 4
+  Speed: 3
+  Acceleration: 30
   StopingDistance: 3

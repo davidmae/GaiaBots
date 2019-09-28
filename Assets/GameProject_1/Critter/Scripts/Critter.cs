@@ -1,17 +1,13 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
-using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using Assets.GameProject_1.Status;
 using Assets.GameProject_1.Status.Scripts;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -45,6 +41,7 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void Start()
         {
+            Behaviour.StateMachine.UpdateStates(move: true);
             Behaviour.Movement.MoveToPosition();
         }
 
@@ -66,12 +63,11 @@ namespace Assets.GameProject_1.Critter.Scripts
 
             #endregion
 
-
             if (Behaviour.Movement.ArrivedToPosition(transform.position, critterData.StopingDistance))
             {
                 if (Behaviour.StateMachine.CurrentState.IsGoingToEat)
                 {
-                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsEatingRoutine, critterData.EatingTime);
+                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsEatingRoutine);
                 }
                 else if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
                 {
@@ -91,8 +87,8 @@ namespace Assets.GameProject_1.Critter.Scripts
             }
 
             time += Time.deltaTime;
-
         }
+
 
         private void OnTriggerEnter(Collider other)
         {
@@ -105,13 +101,13 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void OnTriggerStay(Collider other)
         {
-            if (Behaviour.StateMachine.CurrentState.IsMoving)
-                return;
-
             if (other != null)
             {
-                var detectable = other.GetComponent<IDetectableDynamic>();
-                Behaviour.StateMachine.Detect(detectable);
+                if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
+                {
+                    var detectable = other.GetComponent<IDetectableDynamic>();
+                    Behaviour.StateMachine.Detect(detectable);
+                }
             }
         }
     }

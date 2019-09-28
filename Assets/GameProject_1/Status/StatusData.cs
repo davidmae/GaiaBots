@@ -10,6 +10,7 @@ namespace Assets.GameProject_1.Status
         public StatusTypes StatusType;
         public int Current;
         public int Treshold;
+        public int MaxValue;
 
         public StatusBase StatusInstance
         {
@@ -21,7 +22,7 @@ namespace Assets.GameProject_1.Status
             switch (StatusType)
             {
                 case StatusTypes.Hungry:
-                    return new HungryStatus(StatusType, Current, Treshold);
+                    return new HungryStatus(StatusType, Current, Treshold, MaxValue);
 
                 case StatusTypes.Rage:
                     return new RageStatus(StatusType, Current, Treshold);
