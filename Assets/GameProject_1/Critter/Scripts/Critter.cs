@@ -71,7 +71,7 @@ namespace Assets.GameProject_1.Critter.Scripts
                 }
                 else if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
                 {
-                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsFightingRoutine, 5f); //<-- TODO
+                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsFightingRoutine, 2f); //<-- TODO
                 }
                 else
                 {

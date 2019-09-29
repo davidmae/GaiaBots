@@ -24,8 +24,8 @@ namespace Assets.GameFramework.Item.Core
             if (this == null || this.ToString() == "null")
                 return;
 
-            if (!actor.DetectablesQueue.Contains(this))
-                actor.DetectablesQueue.Enqueue(this);
+            if (!actor.DetectableQueue.Contains(this))
+                actor.DetectableQueue.Add(this);
 
             if (!actor.Behaviour.StateMachine.CurrentState.IsGoingToEat)
             {

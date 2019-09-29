@@ -277,15 +277,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: m_Radius
-      value: 2.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_distance
       value: 8.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: m_Radius
+      value: 2.1
       objectReference: {fileID: 0}
     - target: {fileID: 4917255667625511460, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -525,15 +525,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: m_Radius
-      value: 2.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_distance
       value: 1.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: m_Radius
+      value: 2.1
       objectReference: {fileID: 0}
     - target: {fileID: 4917255667625511460, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -653,15 +653,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: m_Radius
-      value: 2.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_distance
       value: 1.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: m_Radius
+      value: 2.1
       objectReference: {fileID: 0}
     - target: {fileID: 4917255667625511460, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -1058,15 +1058,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: m_Radius
-      value: 2.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_distance
       value: 8.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: m_Radius
+      value: 2.1
       objectReference: {fileID: 0}
     - target: {fileID: 4917255667625511460, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}

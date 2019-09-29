@@ -13,7 +13,8 @@ namespace Assets.GameFramework.Status.Core
         Undefined = -1,
         Hungry = 0,
         Rage = 1,
-        Defecate = 2
+        Defecate = 2,
+        Health = 3
         //...
     }
 }

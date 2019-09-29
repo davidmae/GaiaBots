@@ -10,8 +10,6 @@ namespace Assets.GameFramework.Item.Interfaces
 {
     public interface IConsumable : IItem, IDetectable
     {
-        event Action OnUpdateSatiety;
-
         int GetSacietyPoints();
         int MinusOneSacietyPoint();
     }

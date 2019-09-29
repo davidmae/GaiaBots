@@ -27,10 +27,15 @@ namespace Assets.GameFramework.Behaviour.Core
             CurrentState = new States();
         }
 
-        public void Detect(Common.IDetectable detectable)
+        public void Detect(IDetectable detectable)
         {
-            if (detectable != null && !IfActorIsFull(StatusTypes.Hungry))
-                detectable.Detect(Actor);
+            if (detectable == null)
+                return;
+
+            if (detectable is IConsumable && IfActorIsFull(StatusTypes.Hungry))
+                return;
+
+            detectable.Detect(Actor);
         }
 
         public void ExecuteAction(Func<IEnumerator> action) // para más tipos de datos ¿? TODO
@@ -74,6 +79,21 @@ namespace Assets.GameFramework.Behaviour.Core
             }
         }
 
+        private IEnumerator CheckIfActorFinish(ActorBase detectedActor, StatusTypes statusType)
+        {
+            bool done = false;
+            while (!done)
+            {
+                if (IfActorIsDeath(statusType, detectedActor))
+                    done = true;
+
+                if (IfActorIsTooFar(detectedActor))
+                    done = true;
+
+                yield return null;
+            }
+        }
+
         // Condiciones
         private bool IfActorIsFull(StatusTypes statusType)
         {
@@ -81,19 +101,35 @@ namespace Assets.GameFramework.Behaviour.Core
             return status.Current >= status.MaxValue;
         }
 
+        private bool IfActorIsDeath(StatusTypes statusType, ActorBase detectedActor = null)
+        {
+            var status = detectedActor.StatusInstances[statusType];
+            return status.Current <= 0;
+        }
+
+        private bool IfActorIsTooFar(ActorBase detectedActor)
+        {
+            var radiusDistance = Actor.GetComponent<SphereCollider>().radius;
+            var visionDistance = Actor.GetComponent<ConeCollider>().Distance;
+            var detectDistance = Vector3.Distance(Actor.transform.position, detectedActor.transform.position);
+
+            return radiusDistance < detectDistance && visionDistance < detectDistance;
+        }
+
+
         private void CheckNextQueueDetectable()
         {
-            if (Actor.DetectablesQueue.Count > 0)
+            if (Actor.DetectableQueue.Count > 0)
             {
                 if (IfActorIsFull(StatusTypes.Hungry))
                 {
                     //TODO: Eliminar todos los items consumables que modifiquen el hambre
                     // habrá que distinguir según status modificable
-                    Actor.DetectablesQueue.Clear();
+                    Actor.DetectableQueue.Clear();
                 }
                 else
                 {
-                    var detectable = Actor.GetCurrentDetectable<IDetectable>();
+                    var detectable = Actor.DetectableQueue[0];
                     detectable.Detect(Actor);
                 }
             }
@@ -101,12 +137,12 @@ namespace Assets.GameFramework.Behaviour.Core
 
         public IEnumerator IsEatingRoutine(/*float seconds*/)
         {
-            var consumable = Actor.GetCurrentDetectable<IConsumable>();
+            var consumable = Actor.GetCurrentDetectable<Consumable>();
 
             if (consumable == null || consumable.ToString() == "null")
             {
                 Actor.Behaviour.Movement.Navigator.isStopped = false;
-                Actor.DetectablesQueue.Dequeue();
+                Actor.DetectableQueue.Remove(consumable);
                 UpdateStates(move: true);
 
                 //TODO
@@ -123,7 +159,7 @@ namespace Assets.GameFramework.Behaviour.Core
                 yield return CheckIfActorFinishWithConsumable(consumable, StatusTypes.Hungry);
 
                 Actor.Behaviour.Movement.Navigator.isStopped = false;
-                Actor.DetectablesQueue.Dequeue();
+                Actor.DetectableQueue.Remove(consumable);
 
                 consumable.OnUpdateSatiety -= Actor.RestoreHungry;
                 consumable.LeaveItem();
@@ -138,19 +174,28 @@ namespace Assets.GameFramework.Behaviour.Core
 
         public IEnumerator IsFightingRoutine(float seconds)
         {
+            var detectedActor = Actor.GetCurrentDetectable<ActorBase>();
+
             UpdateStates(fight: true);
             Actor.Behaviour.Movement.Navigator.isStopped = true;
 
-            yield return new WaitForSeconds(seconds); //<-- dependerá de la salud del rival (TODO)
+            detectedActor.OnUpdateStatus += Actor.DamageHealth;
+            detectedActor.ProcessStatus();
 
-            if (CurrentState.IsFighting)
-            {
-                Actor.Behaviour.Movement.Navigator.isStopped = false;
+            yield return CheckIfActorFinish(detectedActor, StatusTypes.Health);
 
-                //
+            Actor.Behaviour.Movement.Navigator.isStopped = false;
+            Actor.DetectableQueue.Remove(detectedActor);
 
-                UpdateStates(move: true);
-            }
+            detectedActor.OnUpdateStatus -= Actor.DamageHealth;
+            detectedActor.EndProcessStatus();
+
+            if (IfActorIsTooFar(detectedActor))
+                Detect(detectedActor);
+            else
+                detectedActor.Destroy();
+
+            UpdateStates(move: true);
         }
 
 
