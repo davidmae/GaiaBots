@@ -30,6 +30,9 @@ namespace Assets.GameProject_1.Status
                 case StatusTypes.Defecate:
                     return new DefecateStatus(StatusType, Current, Treshold);
 
+                case StatusTypes.Health:
+                    return new HealthStatus(StatusType, Current, Treshold, MaxValue);
+
                 default:
                     break;
             }

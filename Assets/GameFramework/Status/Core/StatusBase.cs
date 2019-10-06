@@ -1,4 +1,6 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Interfaces;
 using System;
 using UnityEngine;
@@ -12,6 +14,8 @@ namespace Assets.GameFramework.Status.Core
         public int Current;
         public int Treshold;
         public int? MaxValue;
+
+        public StatusBase() { }
 
         public StatusBase(StatusTypes type, int current, int treshold) : this(type, current, treshold, null)
         {
@@ -31,5 +35,16 @@ namespace Assets.GameFramework.Status.Core
             if (Current < Treshold)
                 Debug.Log($"StatusBase --- Current value is lower than treshold --- ");
         }
+
+        public virtual int UpdateStatus(int value, string opt = "")
+        {
+            UpdateStatus(value);
+            return Current;
+        }
+
+        //public virtual Consumable<T> ParseConsumable<T>(IConsumable consumable) where T : StatusBase
+        //{
+        //    return (Consumable<T>)consumable;
+        //}
     }
 }

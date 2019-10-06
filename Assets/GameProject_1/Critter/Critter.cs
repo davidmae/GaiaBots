@@ -2,18 +2,21 @@
 using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
+using Assets.GameFramework.Movement.Core;
 using Assets.GameFramework.Status.Core;
+using Assets.GameProject_1.Senses;
+using Assets.GameProject_1.States;
 using Assets.GameProject_1.Status;
-using Assets.GameProject_1.Status.Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Assets.GameProject_1.Critter.Scripts
+namespace Assets.GameProject_1.Critter
 {
-    [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(MyNavigator))]
     [RequireComponent(typeof(SphereCollider))]
     [RequireComponent(typeof(ConeCollider))]
     [RequireComponent(typeof(Rigidbody))]
@@ -28,21 +31,39 @@ namespace Assets.GameProject_1.Critter.Scripts
 
         private void Awake()
         {
-            NavMeshAgent navigator = GetComponent<NavMeshAgent>();
+            var navigator = new MyNavigator(GetComponent<NavMeshAgent>(), navoptions =>
+            {
+                navoptions.speed = critterData.Speed;
+                navoptions.acceleration = critterData.Acceleration;
+                navoptions.stoppingDistance = critterData.StopingDistance;
+            });
 
-            Behaviour = new ActorBehaviour(this, new MovableAI(navigator), new StateMachine(this));
+            var statesFactory = new StatesFactory(this, (factory, states) =>
+            {
+                states.AddState(StateMachine_BaseStates.Idle, factory.IsMovingRoutine);
+                states.AddState(StateMachine_BaseStates.StayFront, factory.IsStayfrontRoutine);
+                states.AddState(StateMachine_BaseStates.GoingToItem, factory.IsGoingtoDetectableItemRoutine);
+                states.AddState(StateMachine_BaseStates.GoingToFight, factory.IsGoingtoFightRoutine);
+                states.AddState(StateMachine_BaseStates.Attack, factory.IsFightingRoutine);
+            });
+
+
+            var actor = this;
+            var movement = new MovableAI(navigator);
+            var stateMachine = new StateMachine(actor, statesFactory.SelectedStates);
+
+
+            Behaviour = new ActorBehaviour(actor, movement, stateMachine);
             StatusInstances = statusData.InitializeStatusInstancesFromStatusData();
+            DetectableQueue = new PriorityQueue<IDetectable>();
+            Senses = new Sensor();
 
             ListStatus = StatusInstances.Select(s => s.Value).ToList();
-
-            Behaviour.Movement.Navigator.speed = critterData.Speed;
-            Behaviour.Movement.Navigator.acceleration = critterData.Acceleration;
         }
 
         private void Start()
         {
-            Behaviour.StateMachine.UpdateStates(move: true);
-            Behaviour.Movement.MoveToPosition();
+            Behaviour.StateMachine.Start();
         }
 
         private void Update()
@@ -62,51 +83,26 @@ namespace Assets.GameProject_1.Critter.Scripts
             }
 
             #endregion
-
-            if (Behaviour.Movement.ArrivedToPosition(transform.position, critterData.StopingDistance))
-            {
-                if (Behaviour.StateMachine.CurrentState.IsGoingToEat)
-                {
-                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsEatingRoutine);
-                }
-                else if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
-                {
-                    Behaviour.StateMachine.ExecuteAction(Behaviour.StateMachine.IsFightingRoutine, 5f); //<-- TODO
-                }
-                else
-                {
-                    Behaviour.Movement.MoveToPosition();
-                }
-            }
-
-
-            if (time >= (second * 5f))
-            {
-                StatusInstances[StatusTypes.Defecate].UpdateStatus(0);
-                time = 0;
-            }
-
-            time += Time.deltaTime;
         }
 
 
-        private void OnTriggerEnter(Collider other)
+        protected virtual void OnTriggerEnter(Collider other)
         {
             if (other != null)
             {
                 var detectable = other.GetComponent<IDetectable>();
-                Behaviour.StateMachine.Detect(detectable);
+                Senses.Detect(this, detectable);
             }
         }
 
-        private void OnTriggerStay(Collider other)
+        protected virtual void OnTriggerStay(Collider other)
         {
             if (other != null)
             {
                 if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
                 {
                     var detectable = other.GetComponent<IDetectableDynamic>();
-                    Behaviour.StateMachine.Detect(detectable);
+                    Senses.Detect(this, detectable);
                 }
             }
         }

@@ -9,16 +9,16 @@ using UnityEngine;
 
 namespace Assets.GameProject_1.Status
 {
-    public class HungryStatus : StatusBase
+    public class HealthStatus : StatusBase
     {
-        public HungryStatus() { }
-        public HungryStatus(StatusTypes type, int current, int treshold, int maxvalue) : base(type, current, treshold, maxvalue) { }
+        public HealthStatus() { }
+        public HealthStatus(StatusTypes type, int current, int treshold, int maxvalue) : base(type, current, treshold, maxvalue) { }
 
         public override void UpdateStatus(int value)
         {
             base.UpdateStatus(value);
-            if (Current < Treshold)
-                Debug.Log($" ------ TENGO HAMBRE !!!!! ------ ");
+            if (Current <= 0)
+                Debug.Log($" ------ HE MORIDO... ------ ");
         }
 
     }

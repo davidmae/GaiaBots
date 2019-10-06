@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 6967526946523583035}
   - component: {fileID: 6967526946523583034}
   - component: {fileID: 342688321}
-  - component: {fileID: 229378576982277225}
+  - component: {fileID: -4367895885757861960}
   m_Layer: 0
-  m_Name: Apple
+  m_Name: Potion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 1
@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c39bbe098ec895f4dbc8ca2ab4a29a99, type: 2}
+  - {fileID: 2100000, guid: 9412c59436ba9a6489a3286e85380440, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,7 +110,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &229378576982277225
+--- !u!114 &-4367895885757861960
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6967526946523583013}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf34381224a5e7648beef5df0889bc4a, type: 3}
+  m_Script: {fileID: 11500000, guid: 9ab1953560d4d084caec1c17cc9e3cbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 5
+  Value: 4
