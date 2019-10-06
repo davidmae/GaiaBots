@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44026cfd80174d846a8bd7d3f1fa41d7, type: 3}
-  m_Name: BearData
+  m_Script: {fileID: 11500000, guid: ff46abf55f67a6348a986d1ee7d503b9, type: 3}
+  m_Name: CritterData
   m_EditorClassIdentifier: 
-  Name: Bear
-  EatingTime: 3
-  Speed: 3
+  Name: CritterData
+  EatingTime: 0
+  Speed: 5
   Acceleration: 30
-  StopingDistance: 3
+  StopingDistance: 1.5

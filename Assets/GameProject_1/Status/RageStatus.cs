@@ -11,6 +11,7 @@ namespace Assets.GameProject_1.Status
 {
     public class RageStatus : StatusBase
     {
+        public RageStatus() { }
         public RageStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
 
         public override void UpdateStatus(int value)

@@ -1,6 +1,6 @@
 ﻿using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
-using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Senses.Core;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
@@ -14,14 +14,14 @@ namespace Assets.GameFramework.Actor.Core
     {
     }
 
-    public class ActorBase : MonoBehaviour, IDetectableDynamic
+    public class ActorBase : GFrameworkEntityBase, IDetectableDynamic
     {
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
-        public PriorityQueue<IDetectable> DetectableQueue { get; set; } = new PriorityQueue<IDetectable>();
+        public PriorityQueue<IDetectable> DetectableQueue { get; set; }
+        public SensesBase Senses { get; set; }
 
-
-        public event Action OnUpdateStatus;
+        public float attackDistance;
 
         [Header("Debugging fields")]
 
@@ -30,28 +30,33 @@ namespace Assets.GameFramework.Actor.Core
         public List<StatusBase> ListStatus;
         // ----------------------------------------
 
-        public virtual void Detect(ActorBase actor)
+        public virtual void Detect(ActorBase originalActor)
         {
             if (this == null || this.ToString() == "null")
                 return;
 
-            var visionDistance = actor.GetComponent<ConeCollider>().Distance;
-            var detectDistance = Vector3.Distance(actor.transform.position, this.transform.position);
+            var detectDistance = Vector3.Distance(originalActor.transform.position, transform.position);
 
+            var visionDistance = originalActor.GetComponent<ConeCollider>().Distance;
             if (visionDistance < detectDistance)
+            {
+                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                originalActor.Behaviour.StateMachine.Update();
                 return;
+            }
 
-            if (!actor.DetectableQueue.Contains(this))
-                actor.DetectableQueue.Add(this);
+            if (originalActor.attackDistance > detectDistance)
+            {
+                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Attack;
+                originalActor.Behaviour.StateMachine.Update();
+                return;
+            }
 
+            if (!originalActor.DetectableQueue.Contains(this))
+                originalActor.DetectableQueue.Add(this);
 
-            // Solo encara al actor si entra en su rango de vision
-            // Evita que el otro actor tambien lo encare si su vision es menor...
-
-            actor.transform.LookAt(this.transform);
-            actor.Behaviour.Movement.MoveToPosition(this.transform.position);
-            actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
-
+            originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
+            originalActor.Behaviour.StateMachine.Update();
 
             //-----------------------------For debugging------------------------------
             //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -62,62 +67,96 @@ namespace Assets.GameFramework.Actor.Core
             //Debug.Log($"{name} has detected to {currentActor.name}");
         }
 
-        public T GetCurrentDetectable<T>() where T : IDetectable
+        public Vector3 GetPosition() => transform.position;
+
+        public virtual T GetCurrentDetectable<T>() where T : IDetectable
         {
-            return (T)DetectableQueue.Find(d => d.GetType().BaseType == typeof(T));
+            foreach (var detectable in DetectableQueue)
+            {
+                try
+                {
+                    var res = (T)detectable;
+                    return res;
+                }
+                catch (Exception ex)
+                { }
+            }
+
+            return default(T);
         }
 
-        public void RestoreHungry()
+        public virtual bool IsFull(StatusBase status)
         {
-            int itemSatiety = GetCurrentDetectable<Consumable>().MinusOneSacietyPoint();
+            if (status == null) return true;
+            status = StatusInstances.Values.FirstOrDefault(s => s.GetType() == status.GetType());
+            return status.Current >= status.MaxValue;
+        }
+        public virtual bool IsFull(StatusTypes statusType)
+        {
+            var status = this.StatusInstances[statusType];
+            return status.Current >= status.MaxValue;
+        }
+        public virtual bool IsFull()
+        {
+            bool isFull = true;
 
-            if (itemSatiety >= 0)
-                StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
+            foreach (var status in StatusInstances.Values)
+            {
+                if (status.Current >= status.MaxValue)
+                    continue;
 
-            // Debug
-            //Debug.Log($"{this.name} --- {GetCurrentDetectable<IConsumable>().GetSacietyPoints()}" +
-            //    $" --- saciety actor: {StatusInstances[StatusTypes.Hungry].Current}");
+                isFull = false;
+                break;
+            }
+
+            return isFull;
         }
 
-        public void DamageHealth()
+        public virtual bool IsTooFar(ActorBase actorTarget)
         {
-            var targetActor = GetCurrentDetectable<ActorBase>();
-            var targetValue = targetActor.MinusOneCurrentPoint();
-
-            if (targetValue >= 0)
-                targetActor.StatusInstances[StatusTypes.Health].UpdateStatus(-1);
-
-            // Debug
-            //Debug.Log($"target -> {GetCurrentDetectable<ActorBase>().name} --- {GetCurrentDetectable<ActorBase>().StatusInstances[StatusTypes.Health].Current}" +
-            //    $" --- health actor {this.name}: {StatusInstances[StatusTypes.Health].Current}");
+            var detectDistance = Vector3.Distance(transform.position, actorTarget.transform.position);
+            return attackDistance < detectDistance;
+        }
+        public virtual bool IsDeath(ActorBase actorTarget = null)
+        {
+            var status = actorTarget.StatusInstances[StatusTypes.Health];
+            return status.Current <= 0;
         }
 
-        public void ProcessStatus()
+
+        public virtual Action PlusOnePointToActor<TActorStatus>(IConsumable consumable)
+            where TActorStatus : StatusBase
         {
-            if (!IsInvoking("InteractionUpdate"))
-                InvokeRepeating("InteractionUpdate", 0f, 1f);
+            return () =>
+            {
+                int currValue = consumable.MinusOnePoint();
+
+                if (currValue >= 0)
+                {
+                    StatusInstances.Values
+                        .FirstOrDefault(s => s.GetType() == typeof(TActorStatus))
+                        .UpdateStatus(1);
+                }
+            };
+        }
+        public virtual Action MinusOnePointToActor<TActorStatus>(IDetectableDynamic target)
+            where TActorStatus : StatusBase
+        {
+            return () =>
+            {
+                var targetActor = (ActorBase)target;
+                int currValue = targetActor.StatusInstances.Values.FirstOrDefault(s => s.GetType() == typeof(TActorStatus)).Current;
+
+                if (currValue >= 0)
+                {
+                    targetActor
+                        .StatusInstances.Values
+                        .FirstOrDefault(s => s.GetType() == typeof(TActorStatus))
+                        .UpdateStatus(-1);
+                }
+            };
         }
 
-        public void EndProcessStatus()
-        {
-            CancelInvoke("InteractionUpdate");
-        }
-
-        private void InteractionUpdate()
-        {
-            if (OnUpdateStatus != null)
-                OnUpdateStatus();
-        }
-
-        public void Destroy()
-        {
-            Destroy(gameObject);
-        }
-
-        public int MinusOneCurrentPoint()
-        {
-            var current = StatusInstances[StatusTypes.Health].Current;
-            return current == -1 ? current : --current;
-        }
+        
     }
 }

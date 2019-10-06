@@ -1,10 +1,7 @@
 ﻿
 namespace Assets.GameFramework.Item.Interfaces
 {
-    public interface IItem
+    public interface IItem : IGFrameworkEntityBase
     {
-        void UseItem();
-        void LeaveItem();
-        void DestroyItem();
     }
 }

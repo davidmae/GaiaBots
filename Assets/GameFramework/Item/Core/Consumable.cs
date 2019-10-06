@@ -1,23 +1,14 @@
 ﻿using Assets.GameFramework.Actor.Core;
-using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.GameFramework.Item.Core
 {
-    public class Consumable : MonoBehaviour, IConsumable
+    public class Consumable<TStatus> : GFrameworkEntityBase, IConsumable
+        where TStatus : StatusBase
     {
-        public int satiety;
-
-        public event Action OnUpdateSatiety;
-
+        public int Value;
 
         public virtual void Detect(ActorBase actor)
         {
@@ -27,45 +18,26 @@ namespace Assets.GameFramework.Item.Core
             if (!actor.DetectableQueue.Contains(this))
                 actor.DetectableQueue.Add(this);
 
-            if (!actor.Behaviour.StateMachine.CurrentState.IsGoingToEat)
+            if (!actor.Behaviour.StateMachine.CurrentState.IsGoingToItem)
             {
-                actor.Behaviour.Movement.MoveToPosition(transform.position);
-                actor.Behaviour.StateMachine.UpdateStates(gotoEat: true);
+                actor.Behaviour.StateMachine.NextState = Behaviour.Core.StateMachine_BaseStates.GoingToItem;
+                actor.Behaviour.StateMachine.Update();
             }
         }
 
-        public int GetSacietyPoints()
-        {
-            return satiety;
-        } 
+        public Vector3 GetPosition() => transform.position;
 
-        public int MinusOneSacietyPoint()
+        public int GetCurrentPoints()
         {
-            return satiety == -1 ? satiety : --satiety;
+            return Value;
         }
 
-        private void InteractionUpdate()
+        public int MinusOnePoint()
         {
-            if (OnUpdateSatiety != null)
-                OnUpdateSatiety();
+            return Value == -1 ? Value : --Value;
         }
-
-        public void UseItem()
-        {
-            if (!IsInvoking("InteractionUpdate"))
-                InvokeRepeating("InteractionUpdate", 0f, 1f);
-        }
-
-        public void LeaveItem()
-        {
-            CancelInvoke("InteractionUpdate");
-        }
-
-        public void DestroyItem()
-        {
-            Destroy(gameObject);
-        }
-
 
     }
+
+    
 }

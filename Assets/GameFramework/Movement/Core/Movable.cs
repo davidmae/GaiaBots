@@ -12,7 +12,7 @@ namespace Assets.GameFramework.Movement.Core
     public class Movable : IMovable
     {
         public Vector3 Target { get; set; }
-        public NavMeshAgent Navigator { get; set; }
+        public MyNavigator Navigation { get; set; }
 
         public void SetNextTarget(float x, float y, float z)
              => Target = new Vector3(x, 0, z);
@@ -24,9 +24,13 @@ namespace Assets.GameFramework.Movement.Core
             => SetNextTarget(transform.position);
 
         public bool ArrivedToPosition(Vector3 position, float stoppingDistance)
-            => (position - Target).sqrMagnitude < stoppingDistance * stoppingDistance;
+        {
+            //Debug.Log(Vector3.Distance(position, Target));
+            //Debug.Log(stoppingDistance * 1.5f);
+            return Vector3.Distance(position, Target) <= stoppingDistance * 1.5f; //(position - Target).sqrMagnitude < stoppingDistance * stoppingDistance;
+        }
 
-        public virtual void NavigateToTarget() => Navigator.SetDestination(Target);
+        public virtual void NavigateToTarget() => Navigation.SetDestination(Target);
 
 
 

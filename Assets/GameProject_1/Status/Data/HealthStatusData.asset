@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StatusType: 3
   Current: 5
-  Treshold: 0
+  Treshold: 50
   MaxValue: 100

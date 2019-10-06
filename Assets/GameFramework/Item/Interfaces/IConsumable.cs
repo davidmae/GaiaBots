@@ -1,4 +1,7 @@
-﻿using Assets.GameFramework.Common;
+﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Common;
+using Assets.GameFramework.Status.Core;
+using Assets.GameFramework.Status.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,8 +13,7 @@ namespace Assets.GameFramework.Item.Interfaces
 {
     public interface IConsumable : IItem, IDetectable
     {
-        int GetSacietyPoints();
-        int MinusOneSacietyPoint();
+        int GetCurrentPoints();
+        int MinusOnePoint();
     }
-
 }

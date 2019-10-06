@@ -4,13 +4,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Assets.GameFramework.Behaviour.Core
+namespace Assets.GameFramework.Movement.Core
 {
     public class MovableAI : Movable
     {
-        public MovableAI(NavMeshAgent navigator)
+        public MovableAI(MyNavigator navigator)
         {
-            Navigator = navigator;
+            Navigation = navigator;
         }
 
         public override void MoveToPosition(Vector3 position = new Vector3())

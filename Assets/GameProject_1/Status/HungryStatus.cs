@@ -11,6 +11,7 @@ namespace Assets.GameProject_1.Status
 {
     public class HungryStatus : StatusBase
     {
+        public HungryStatus() { }
         public HungryStatus(StatusTypes type, int current, int treshold, int maxvalue) : base(type, current, treshold, maxvalue) { }
 
         public override void UpdateStatus(int value)
