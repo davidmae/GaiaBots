@@ -26,7 +26,8 @@ namespace Assets.GameFramework.Item.Core
             if (this == null || this.ToString() == "null")
                 return;
 
-            actor.DetectableQueue.Add(this);
+            if (!actor.DetectableQueue.Contains(this))
+                actor.DetectableQueue.Add(this);
 
             if (!actor.Behaviour.StateMachine.CurrentState.IsGoingToItem)
             {
@@ -50,5 +51,5 @@ namespace Assets.GameFramework.Item.Core
 
     }
 
-    
+
 }

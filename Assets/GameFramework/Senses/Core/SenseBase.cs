@@ -26,6 +26,9 @@ namespace Assets.GameFramework.Senses.Core
             if (actor.Behaviour.StateMachine.CurrentState.IsStayFront)
                 return;
 
+            if (actor.Behaviour.StateMachine.CurrentState.IsFighting)
+                return;
+
             if (detectable is IConsumable)
             {
                 var consumable = (IConsumable)detectable;

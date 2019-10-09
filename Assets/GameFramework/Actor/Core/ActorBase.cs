@@ -39,14 +39,6 @@ namespace Assets.GameFramework.Actor.Core
             actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
             actor.Behaviour.StateMachine.UpdateStates(move: true);
         }
-
-        public void Add(T detectable, bool checkExist = true)
-        {
-            if (checkExist && !this.Contains(detectable))
-                this.Add(detectable);
-            else if (!checkExist)
-                this.Add(detectable);
-        }
     }
 
     public class ActorBase : GFrameworkEntityBase, IDetectableDynamic
@@ -92,7 +84,8 @@ namespace Assets.GameFramework.Actor.Core
                 return;
             }
 
-            originalActor.DetectableQueue.Add(this);
+            if (!originalActor.DetectableQueue.Contains(this))
+                originalActor.DetectableQueue.Add(this);
 
             originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
             originalActor.Behaviour.StateMachine.Update();
@@ -156,7 +149,7 @@ namespace Assets.GameFramework.Actor.Core
             var detectDistance = Vector3.Distance(transform.position, actorTarget.transform.position);
             return attackDistance < detectDistance;
         }
-        public virtual bool IsDeath(ActorBase actorTarget = null)
+        public virtual bool IsDeath(ActorBase actorTarget)
         {
             var status = actorTarget.StatusInstances[StatusTypes.Health];
             return status.Current <= 0;

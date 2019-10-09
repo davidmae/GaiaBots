@@ -132,6 +132,7 @@ namespace Assets.GameProject_1.States
             actor.Behaviour.StateMachine.UpdateStates(fight: true);
             actor.Behaviour.Movement.Navigation.Stop();
 
+            // Se resta vida al target ya que recibe primero!
             actorTarget.OnUpdateEntity += actor.MinusOnePointToActor<HealthStatus>(actorTarget);
             actorTarget.InvokeUpdateEntityOverTime();
 
@@ -146,8 +147,17 @@ namespace Assets.GameProject_1.States
             if (actor.IsTooFar(actorTarget))
                 actor.Senses[0].Detect(actor, actorTarget); //<-- sets NextState inside (continue going to fight)
             else
-            {   //he kills target!
+            {
+                // Terminamos de restar vida ya que el target ya no existe para golpearnos!
+                actor.OnUpdateEntity -= actorTarget.MinusOnePointToActor<HealthStatus>(actor);
+                actor.CancelUpdateEntityOverTime();
+
+                if (actor.DetectableQueue.Count() <= 0)
+                    actor.SetUpdateToNull();
+
+                // Se destruye el target
                 actorTarget.DestroyEntity();
+
                 actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
                 actor.Behaviour.StateMachine.UpdateStates(move: true);
             }
@@ -213,5 +223,5 @@ namespace Assets.GameProject_1.States
                 yield return null;
             }
         }
-
+    }
 }

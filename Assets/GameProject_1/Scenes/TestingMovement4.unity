@@ -2793,7 +2793,7 @@ PrefabInstance:
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.91
+      value: 15.97
       objectReference: {fileID: 0}
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -2803,7 +2803,7 @@ PrefabInstance:
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 20.09
+      value: 23.89
       objectReference: {fileID: 0}
     - target: {fileID: 4124919677881968959, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
@@ -2869,6 +2869,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_angle
       value: 7.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7452056710683385793, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: attackDistance
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87b82f906855dd84986a00b2004f0371, type: 3}
@@ -3040,15 +3045,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: CritterBase
       objectReference: {fileID: 0}
-    - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
-        type: 3}
-      propertyPath: m_distance
-      value: 8.01
-      objectReference: {fileID: 0}
     - target: {fileID: 4124919677881968952, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}
       propertyPath: m_Radius
       value: 2.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 8633153111337832269, guid: 87b82f906855dd84986a00b2004f0371,
+        type: 3}
+      propertyPath: m_distance
+      value: 8.01
       objectReference: {fileID: 0}
     - target: {fileID: 7452056710683385793, guid: 87b82f906855dd84986a00b2004f0371,
         type: 3}

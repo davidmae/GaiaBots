@@ -26,11 +26,19 @@ namespace Assets.GameFramework
         public void CancelUpdateEntityOverTime()
         {
             CancelInvoke("OnUpdate");
+            //if (OnUpdateEntity == null && OnUpdateEntity.Target == null)
+            //    OnUpdateEntity = null;
+        }
+
+        public void SetUpdateToNull()
+        {
+            OnUpdateEntity = null;
         }
 
         public void DestroyEntity()
         {
             Destroy(gameObject);
         }
+        
     }
 }
