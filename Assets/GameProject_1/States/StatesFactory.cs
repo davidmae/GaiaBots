@@ -48,7 +48,6 @@ namespace Assets.GameProject_1.States
 
         public IEnumerator IsMovingRoutine()
         {
-
             actor.Behaviour.StateMachine.UpdateStates(move: true);
             actor.Behaviour.Movement.MoveToPosition();
 
@@ -63,6 +62,9 @@ namespace Assets.GameProject_1.States
         public IEnumerator IsGoingtoDetectableItemRoutine()
         {
             var detectable = actor.GetCurrentDetectable<IDetectable>();
+
+            if (detectable == null)
+                yield break;
 
             actor.Behaviour.Movement.MoveToPosition(detectable.GetPosition());
             actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
@@ -129,6 +131,9 @@ namespace Assets.GameProject_1.States
         {
             var actorTarget = actor.GetCurrentDetectable<ActorBase>();
 
+            if (actorTarget == null)
+                yield break;
+
             actor.Behaviour.StateMachine.UpdateStates(fight: true);
             actor.Behaviour.Movement.Navigation.Stop();
 
@@ -137,6 +142,9 @@ namespace Assets.GameProject_1.States
             actorTarget.InvokeUpdateEntityOverTime();
 
             yield return CheckIfActorFinish(actorTarget);
+
+            if (actor == null || actorTarget == null)
+                yield break;
 
             actor.Behaviour.Movement.Navigation.Restart();
             actor.DetectableQueue.Remove(actorTarget);
@@ -151,9 +159,7 @@ namespace Assets.GameProject_1.States
                 // Terminamos de restar vida ya que el target ya no existe para golpearnos!
                 actor.OnUpdateEntity -= actorTarget.MinusOnePointToActor<HealthStatus>(actor);
                 actor.CancelUpdateEntityOverTime();
-
-                if (actor.DetectableQueue.Count() <= 0)
-                    actor.SetUpdateToNull();
+                actor.SetUpdateToNull();
 
                 // Se destruye el target
                 actorTarget.DestroyEntity();
