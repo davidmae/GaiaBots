@@ -28,6 +28,7 @@ namespace Assets.GameFramework.Status.Core
             Treshold = treshold;
             MaxValue = maxvalue;
         }
+        public virtual StatusBase GetStatusFrom(IConsumable consumable) => this;
 
         public virtual void UpdateStatus(int value)
         {
@@ -42,9 +43,5 @@ namespace Assets.GameFramework.Status.Core
             return Current;
         }
 
-        //public virtual Consumable<T> ParseConsumable<T>(IConsumable consumable) where T : StatusBase
-        //{
-        //    return (Consumable<T>)consumable;
-        //}
     }
 }

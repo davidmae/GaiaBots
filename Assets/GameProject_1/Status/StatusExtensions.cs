@@ -23,40 +23,5 @@ namespace Assets.GameProject_1.Status
             return statusInstances;
         }
 
-        //TODO
-        public static Action PlusOnePointToActor(this IDictionary<StatusTypes, StatusBase> statusDictionary, ActorBase actor, IConsumable consumable)
-        {
-            //foreach (var status in statusDictionary)
-            //{
-            //    status.Value.ParseConsumable(consumable);
-            //}
-
-            if (consumable is Consumable<HungryStatus>)
-                return actor.PlusOnePointToActor<HungryStatus>(consumable);
-
-            else if (consumable is Consumable<HealthStatus>)
-                return actor.PlusOnePointToActor<HealthStatus>(consumable);
-
-            return null;
-        }
-
-        //TODO
-        public static StatusBase GetStatusFromConsumableType(this IDictionary<StatusTypes, StatusBase> statusDictionary, IConsumable consumable)
-        {
-            //foreach (var status in statusDictionary)
-            //{
-            //    status.Value.ParseConsumable(consumable);
-            //}
-            if (consumable == null)
-                return null;
-
-            if (consumable is Consumable<HungryStatus>)
-                return new HungryStatus();
-
-            if (consumable is Consumable<HealthStatus>)
-                return new HealthStatus();
-
-            return null;
-        }
     }
 }

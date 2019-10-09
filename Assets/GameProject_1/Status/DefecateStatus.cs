@@ -1,4 +1,6 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,8 @@ namespace Assets.GameProject_1.Status
     {
         public DefecateStatus() { }
         public DefecateStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
+
+        public override StatusBase GetStatusFrom(IConsumable consumable) => consumable is Consumable<DefecateStatus> ? this : null;
 
         public override void UpdateStatus(int value)
         {

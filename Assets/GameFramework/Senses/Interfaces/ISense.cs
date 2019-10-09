@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.GameFramework.Senses.Core
+namespace Assets.GameFramework.Senses.Interfaces
 {
-    public abstract class SensesBase
+    public interface ISense
     {
-        public abstract void Detect(ActorBase actor, IDetectable detectable);
+        void Detect(ActorBase actor = null, IDetectable detectable = null);
     }
 }

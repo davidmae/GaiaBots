@@ -7,11 +7,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Assets.GameFramework.Senses.Interfaces;
 
 namespace Assets.GameFramework.Actor.Core
 {
     public class PriorityQueue<T> : List<T> where T : IDetectable
     {
+        public void GetNextDetectable(ActorBase actor)
+        {
+            if (this.Count > 0)
+            {
+                if (actor.IsFull(StatusTypes.Hungry))
+                {
+                    //TODO: Eliminar todos los items consumables que modifiquen el hambre
+                    // habrá que distinguir según status modificable
+                    this.Clear();
+                }
+                else
+                {
+                    var detectable = actor.DetectableQueue[0];
+                    actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToItem;
+                    actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
+
+                    //TODO: APAÑAR
+                    actor.Senses[0].Detect(actor, detectable);
+
+                    return;
+                }
+            }
+
+            actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+            actor.Behaviour.StateMachine.UpdateStates(move: true);
+        }
+
+        public void Add(T detectable, bool checkExist = true)
+        {
+            if (checkExist && !this.Contains(detectable))
+                this.Add(detectable);
+            else if (!checkExist)
+                this.Add(detectable);
+        }
     }
 
     public class ActorBase : GFrameworkEntityBase, IDetectableDynamic
@@ -19,7 +54,7 @@ namespace Assets.GameFramework.Actor.Core
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
         public PriorityQueue<IDetectable> DetectableQueue { get; set; }
-        public SensesBase Senses { get; set; }
+        public List<SenseBase> Senses { get; set; }
 
         public float attackDistance;
 
@@ -35,9 +70,14 @@ namespace Assets.GameFramework.Actor.Core
             if (this == null || this.ToString() == "null")
                 return;
 
+            if (originalActor == this) //<<-- En ocasiones se detecta el mismo 
+                return;
+
+            originalActor.transform.LookAt(transform.position);
+
             var detectDistance = Vector3.Distance(originalActor.transform.position, transform.position);
 
-            var visionDistance = originalActor.GetComponent<ConeCollider>().Distance;
+            var visionDistance = originalActor.GetComponentInChildren<DistanceSense>().Distance;
             if (visionDistance < detectDistance)
             {
                 originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
@@ -52,8 +92,7 @@ namespace Assets.GameFramework.Actor.Core
                 return;
             }
 
-            if (!originalActor.DetectableQueue.Contains(this))
-                originalActor.DetectableQueue.Add(this);
+            originalActor.DetectableQueue.Add(this);
 
             originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
             originalActor.Behaviour.StateMachine.Update();
@@ -124,6 +163,30 @@ namespace Assets.GameFramework.Actor.Core
         }
 
 
+        public virtual Action PlusOnePointToActor(IConsumable consumable)
+        {
+            return () =>
+            {
+                int currValue = consumable.MinusOnePoint();
+
+                if (currValue >= 0)
+                {
+                    var status = StatusInstances.Values.FirstOrDefault(s => s.GetType() == consumable.StatusModified.GetType());
+                    status.UpdateStatus(1);
+                }
+            };
+        }
+
+        public virtual Action PlusOnePointToActor(StatusTypes statusType, IConsumable consumable)
+        {
+            return () =>
+            {
+                int currValue = consumable.MinusOnePoint();
+
+                if (currValue >= 0)
+                    StatusInstances[statusType].UpdateStatus(1);
+            };
+        }
         public virtual Action PlusOnePointToActor<TActorStatus>(IConsumable consumable)
             where TActorStatus : StatusBase
         {
@@ -139,6 +202,7 @@ namespace Assets.GameFramework.Actor.Core
                 }
             };
         }
+
         public virtual Action MinusOnePointToActor<TActorStatus>(IDetectableDynamic target)
             where TActorStatus : StatusBase
         {

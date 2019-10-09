@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: HungryStatus
   m_EditorClassIdentifier: 
   StatusType: 0
-  Current: 95
+  Current: 90
   Treshold: 60
   MaxValue: 100
