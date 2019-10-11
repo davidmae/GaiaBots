@@ -13,6 +13,10 @@ namespace Assets.GameFramework.Item.Interfaces
 {
     public interface IConsumable : IItem, IDetectable
     {
+        StatusBase StatusModified { get; set; }
+
+        event Func<StatusBase> OnGetStatusModified;
+        StatusBase GetStatusModified();
         int GetCurrentPoints();
         int MinusOnePoint();
     }

@@ -5,6 +5,10 @@ namespace Assets.GameProject_1.Item.Scripts
 {
     public class Apple : Consumable<HungryStatus>
     {
+        private void Awake()
+        {
+            base.OnGetStatusModified += () => new HungryStatus();
+        }
     }
 
 }

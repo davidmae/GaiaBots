@@ -3,6 +3,8 @@ using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Movement.Core;
+using Assets.GameFramework.Senses.Core;
+using Assets.GameFramework.Senses.Interfaces;
 using Assets.GameFramework.Status.Core;
 using Assets.GameProject_1.Senses;
 using Assets.GameProject_1.States;
@@ -17,8 +19,6 @@ using UnityEngine.AI;
 namespace Assets.GameProject_1.Critter
 {
     [RequireComponent(typeof(MyNavigator))]
-    [RequireComponent(typeof(SphereCollider))]
-    [RequireComponent(typeof(ConeCollider))]
     [RequireComponent(typeof(Rigidbody))]
     public class Critter : ActorBase
     {
@@ -56,9 +56,11 @@ namespace Assets.GameProject_1.Critter
             Behaviour = new ActorBehaviour(actor, movement, stateMachine);
             StatusInstances = statusData.InitializeStatusInstancesFromStatusData();
             DetectableQueue = new PriorityQueue<IDetectable>();
-            Senses = new Sensor();
 
             ListStatus = StatusInstances.Select(s => s.Value).ToList();
+
+            Senses = GetComponentsInChildren<SenseBase>().ToList();
+
         }
 
         private void Start()
@@ -68,43 +70,44 @@ namespace Assets.GameProject_1.Critter
 
         private void Update()
         {
-            #region Debugging
+            //#region Debugging
 
-            Ray ray = new Ray(transform.position, transform.forward);
-            RaycastHit hitInfo;
+            //Ray ray = new Ray(transform.position, transform.forward);
+            //RaycastHit hitInfo;
 
-            if (Physics.Raycast(ray, out hitInfo, 100))
-            {
-                Debug.DrawLine(transform.position, hitInfo.point, Color.red);
-            }
-            else
-            {
-                Debug.DrawLine(transform.position, ray.origin + ray.direction * 100, Color.green);
-            }
+            //if (Physics.Raycast(ray, out hitInfo, 100))
+            //{
+            //    Debug.DrawLine(transform.position, hitInfo.point, Color.red);
+            //}
+            //else
+            //{
+            //    Debug.DrawLine(transform.position, ray.origin + ray.direction * 100, Color.green);
+            //}
 
-            #endregion
+            //Debug.DrawLine(transform.position, ray.origin + ray.direction * attackDistance, Color.blue);
+
+            //#endregion
         }
+        
+        //protected virtual void OnTriggerEnter(Collider other)
+        //{
+        //    if (other != null)
+        //    {
+        //        var detectable = other.GetComponent<IDetectable>();
+        //        Senses.Detect(this, detectable);
+        //    }
+        //}
 
-
-        protected virtual void OnTriggerEnter(Collider other)
-        {
-            if (other != null)
-            {
-                var detectable = other.GetComponent<IDetectable>();
-                Senses.Detect(this, detectable);
-            }
-        }
-
-        protected virtual void OnTriggerStay(Collider other)
-        {
-            if (other != null)
-            {
-                if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
-                {
-                    var detectable = other.GetComponent<IDetectableDynamic>();
-                    Senses.Detect(this, detectable);
-                }
-            }
-        }
+        //protected virtual void OnTriggerStay(Collider other)
+        //{
+        //    if (other != null)
+        //    {
+        //        if (Behaviour.StateMachine.CurrentState.IsGoingToFight)
+        //        {
+        //            var detectable = other.GetComponent<IDetectableDynamic>();
+        //            Senses.Detect(this, detectable);
+        //        }
+        //    }
+        //}
     }
 }

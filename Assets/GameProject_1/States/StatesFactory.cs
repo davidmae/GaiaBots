@@ -48,7 +48,6 @@ namespace Assets.GameProject_1.States
 
         public IEnumerator IsMovingRoutine()
         {
-
             actor.Behaviour.StateMachine.UpdateStates(move: true);
             actor.Behaviour.Movement.MoveToPosition();
 
@@ -63,6 +62,9 @@ namespace Assets.GameProject_1.States
         public IEnumerator IsGoingtoDetectableItemRoutine()
         {
             var detectable = actor.GetCurrentDetectable<IDetectable>();
+
+            if (detectable == null)
+                yield break;
 
             actor.Behaviour.Movement.MoveToPosition(detectable.GetPosition());
             actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
@@ -108,7 +110,7 @@ namespace Assets.GameProject_1.States
             actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
             actor.Behaviour.Movement.Navigation.Stop();
 
-            consumable.OnUpdateEntity += actor.StatusInstances.PlusOnePointToActor(actor, consumable);
+            consumable.OnUpdateEntity += actor.PlusOnePointToActor(consumable);
             consumable.InvokeUpdateEntityOverTime();
 
             yield return CheckIfactorFinishWithConsumable(consumable);
@@ -116,12 +118,11 @@ namespace Assets.GameProject_1.States
             actor.Behaviour.Movement.Navigation.Restart();
             actor.DetectableQueue.Remove(consumable);
 
-            consumable.OnUpdateEntity -= actor.StatusInstances.PlusOnePointToActor(actor, consumable);
+            consumable.OnUpdateEntity -= actor.PlusOnePointToActor(consumable);
             consumable.CancelUpdateEntityOverTime();
             consumable.DestroyEntity();
 
-            //TODO
-            CheckNextQueueDetectable();
+            actor.DetectableQueue.GetNextDetectable(actor);
 
             actor.Behaviour.StateMachine.Update();
         }
@@ -130,13 +131,20 @@ namespace Assets.GameProject_1.States
         {
             var actorTarget = actor.GetCurrentDetectable<ActorBase>();
 
+            if (actorTarget == null)
+                yield break;
+
             actor.Behaviour.StateMachine.UpdateStates(fight: true);
             actor.Behaviour.Movement.Navigation.Stop();
 
+            // Se resta vida al target ya que recibe primero!
             actorTarget.OnUpdateEntity += actor.MinusOnePointToActor<HealthStatus>(actorTarget);
             actorTarget.InvokeUpdateEntityOverTime();
 
             yield return CheckIfActorFinish(actorTarget);
+
+            if (actor == null || actorTarget == null)
+                yield break;
 
             actor.Behaviour.Movement.Navigation.Restart();
             actor.DetectableQueue.Remove(actorTarget);
@@ -145,10 +153,17 @@ namespace Assets.GameProject_1.States
             actorTarget.CancelUpdateEntityOverTime();
 
             if (actor.IsTooFar(actorTarget))
-                actor.Senses.Detect(actor, actorTarget); //<-- sets NextState inside (continue going to fight)
+                actor.Senses[0].Detect(actor, actorTarget); //<-- sets NextState inside (continue going to fight)
             else
-            {   //he kills target!
+            {
+                // Terminamos de restar vida ya que el target ya no existe para golpearnos!
+                actor.OnUpdateEntity -= actorTarget.MinusOnePointToActor<HealthStatus>(actor);
+                actor.CancelUpdateEntityOverTime();
+                actor.SetUpdateToNull();
+
+                // Se destruye el target
                 actorTarget.DestroyEntity();
+
                 actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
                 actor.Behaviour.StateMachine.UpdateStates(move: true);
             }
@@ -188,7 +203,9 @@ namespace Assets.GameProject_1.States
                     done = true;
 
                 // If actor is full
-                var status = actor.StatusInstances.GetStatusFromConsumableType(consumable);
+                //var status = actor.StatusInstances.GetStatusFromConsumableType(consumable);
+                var status = consumable.StatusModified;
+
                 if (actor.IsFull(status))
                     done = true;
 
@@ -212,45 +229,5 @@ namespace Assets.GameProject_1.States
                 yield return null;
             }
         }
-
-
-
-        // Conditionals
-
-        //private bool IfActorIsFull(StatusTypes statusType)
-        //{
-        //    var status = actor.StatusInstances[statusType];
-        //    return status.Current >= status.MaxValue;
-        //}
-
-
-        // Utils
-
-        private void CheckNextQueueDetectable()
-        {
-            if (actor.DetectableQueue.Count > 0)
-            {
-                if (actor.IsFull(StatusTypes.Hungry))
-                {
-                    //TODO: Eliminar todos los items consumables que modifiquen el hambre
-                    // habrá que distinguir según status modificable
-                    actor.DetectableQueue.Clear();
-                }
-                else
-                {
-                    var detectable = actor.DetectableQueue[0];
-                    actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToItem;
-                    actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
-
-                    actor.Senses.Detect(actor, detectable);
-
-                    return;
-                }
-            }
-
-            actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
-            actor.Behaviour.StateMachine.UpdateStates(move: true);
-        }
-
     }
 }

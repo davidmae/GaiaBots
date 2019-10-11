@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.GameFramework
@@ -26,11 +22,20 @@ namespace Assets.GameFramework
         public void CancelUpdateEntityOverTime()
         {
             CancelInvoke("OnUpdate");
+            //if (OnUpdateEntity == null && OnUpdateEntity.Target == null)
+            //    OnUpdateEntity = null;
+        }
+
+        public void SetUpdateToNull()
+        {
+            OnUpdateEntity = null;
         }
 
         public void DestroyEntity()
         {
             Destroy(gameObject);
         }
+
+        
     }
 }

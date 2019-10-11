@@ -1,6 +1,7 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
+using System;
 using UnityEngine;
 
 namespace Assets.GameFramework.Item.Core
@@ -9,6 +10,16 @@ namespace Assets.GameFramework.Item.Core
         where TStatus : StatusBase
     {
         public int Value;
+        public StatusBase StatusModified { get => GetStatusModified(); set => StatusModified = value; }
+
+        public event Func<StatusBase> OnGetStatusModified;
+        public StatusBase GetStatusModified()
+        {
+            if (OnGetStatusModified != null)
+                return OnGetStatusModified();
+            return null;
+        }
+
 
         public virtual void Detect(ActorBase actor)
         {
@@ -20,6 +31,7 @@ namespace Assets.GameFramework.Item.Core
 
             if (!actor.Behaviour.StateMachine.CurrentState.IsGoingToItem)
             {
+                actor.transform.LookAt(transform.position);
                 actor.Behaviour.StateMachine.NextState = Behaviour.Core.StateMachine_BaseStates.GoingToItem;
                 actor.Behaviour.StateMachine.Update();
             }
@@ -39,5 +51,5 @@ namespace Assets.GameFramework.Item.Core
 
     }
 
-    
+
 }
