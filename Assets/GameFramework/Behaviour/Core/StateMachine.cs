@@ -30,7 +30,7 @@ namespace Assets.GameFramework.Behaviour.Core
 
 
         public StatesDictionary SelectedStates { get; private set; }
-        public StateMachine_BaseStates NextState { get; set; } = StateMachine_BaseStates.Undefined;
+        public StateMachine_BaseStates NextState { get; set; } = StateMachine_BaseStates.Idle;
 
 
         public StateMachine(ActorBase actor, StatesDictionary states)

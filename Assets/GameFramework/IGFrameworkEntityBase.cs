@@ -15,5 +15,6 @@ namespace Assets.GameFramework
         void InvokeUpdateEntityOverTime(float time = 0f, float repeatRate = 1f);
         void CancelUpdateEntityOverTime();
         void DestroyEntity();
+        void SetUpdateToNull();
     }
 }

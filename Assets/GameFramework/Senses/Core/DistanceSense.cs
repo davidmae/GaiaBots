@@ -12,6 +12,5 @@ namespace Assets.GameFramework.Senses.Core
 {
     public class DistanceSense : SenseBase
     {
-        public float Distance;
     }
 }

@@ -15,8 +15,6 @@ namespace Assets.GameProject_1.Senses
     [RequireComponent(typeof(ConeCollider))]
     public class EyeSensor : DistanceSense
     {
-        private IDetectable target;
-
         private void Awake()
         {
             Actor = GetComponentInParent<ActorBase>();
@@ -27,6 +25,7 @@ namespace Assets.GameProject_1.Senses
         {
             if (other != null)
             {
+                //Debug.Log($"{Actor.name} ::: OnTriggerEnter");
                 var detectable = other.GetComponent<IDetectable>();
                 Detect(Actor, detectable);
             }
@@ -36,11 +35,21 @@ namespace Assets.GameProject_1.Senses
         {
             if (other != null)
             {
-                if (Actor.Behaviour.StateMachine.CurrentState.IsGoingToFight)
-                {
-                    var detectable = other.GetComponent<IDetectableDynamic>();
-                    Detect(Actor, detectable);
-                }
+                var detectable = other.GetComponent<IDetectableDynamic>();
+                Detect(Actor, detectable);
+            }
+        }
+
+        protected virtual void OnTriggerExit(Collider other)
+        {
+            if (other != null)
+            {
+                var detectable = other.GetComponent<IDetectable>();
+                if (detectable == null)
+                    return;
+
+                //Debug.Log($"{Actor.name} ::: Target to NULL");
+                Target = null;
             }
         }
     }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Assets.GameProject_1.Senses
 {
-    public class HungrySensor : RadiusSense
+    public class RadiusSensor : RadiusSense
     {
         private void Awake()
         {

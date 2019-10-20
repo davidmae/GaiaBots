@@ -13,8 +13,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 namespace Assets.GameProject_1.Critter
 {
@@ -28,6 +30,18 @@ namespace Assets.GameProject_1.Critter
 
         float second = 1f;
         float time = 0f;
+
+
+        //TODO
+        public Canvas canvas;
+        public GameObject containerHealth;
+        public GameObject containerHungry;
+        public GameObject containerTarget;
+        public GameObject containerEvento;
+
+        TextMeshProUGUI health, hungry, target, evento;
+        Animator animator;
+        Camera camera;
 
         private void Awake()
         {
@@ -61,6 +75,14 @@ namespace Assets.GameProject_1.Critter
 
             Senses = GetComponentsInChildren<SenseBase>().ToList();
 
+            health = containerHealth.GetComponent<TextMeshProUGUI>();
+            hungry = containerHungry.GetComponent<TextMeshProUGUI>();
+            target = containerTarget.GetComponent<TextMeshProUGUI>();
+            evento = containerEvento.GetComponent<TextMeshProUGUI>();
+
+
+            animator = GetComponent<Animator>();
+            camera = FindObjectOfType<Camera>();
         }
 
         private void Start()
@@ -70,6 +92,29 @@ namespace Assets.GameProject_1.Critter
 
         private void Update()
         {
+            if (animator != null)
+                animator.SetInteger("Walk", Behaviour.StateMachine.CurrentState.IsMoving ? 1 : 0);
+
+            if (canvas != null)
+            {
+                health.text = StatusInstances[StatusTypes.Health].Current.ToString();
+                hungry.text = StatusInstances[StatusTypes.Hungry].Current.ToString();
+
+                if (this.DetectableQueue.Count > 0)
+                    target.text = this.DetectableQueue.Last().GetGameObject().name;
+                else target.text = "";
+
+                if (this.CurrentTarget != null)
+                    target.text = this.CurrentTarget.GetGameObject().name;
+
+                //evento.text = "From " + CurrentTarget.GetGameObject().name + " :: " + this.GetOnUpdateVal().Method;
+
+                //GetInvocationList()?.GetLength(0)
+
+                canvas.transform.LookAt(camera.transform.position);
+            }
+            
+
             //#region Debugging
 
             //Ray ray = new Ray(transform.position, transform.forward);

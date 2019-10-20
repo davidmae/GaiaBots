@@ -3,6 +3,7 @@ using Assets.GameFramework.Behaviour.Core;
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Item.Interfaces;
+using Assets.GameFramework.Senses.Core;
 using Assets.GameFramework.Status.Core;
 using Assets.GameProject_1.Status;
 using System;
@@ -16,159 +17,202 @@ namespace Assets.GameProject_1.States
 {
     public class StatesFactory
     {
-        ActorBase actor;
+        ActorBase Actor;
 
         public StatesDictionary SelectedStates { get; private set; }
 
         public StatesFactory(ActorBase actor, Action<StatesFactory, StatesDictionary> states)
         {
-            this.actor = actor;
+            this.Actor = actor;
             this.SelectedStates = new StatesDictionary();
             states(this, SelectedStates);
         }
-
-
-        // Endpoint Actions
-
-        public void RestoreHungry()
-        {
-            int value = actor.GetCurrentDetectable<IConsumable>().MinusOnePoint();
-
-            if (value >= 0)
-                actor.StatusInstances[StatusTypes.Hungry].UpdateStatus(1);
-
-            // Debug
-            //Debug.Log($"{this.name} --- {GetCurrentDetectable<IConsumable>().GetSacietyPoints()}" +
-            //    $" --- saciety actor: {StatusInstances[StatusTypes.Hungry].Current}");
-        }
-
 
 
         // Main States
 
         public IEnumerator IsMovingRoutine()
         {
-            actor.Behaviour.StateMachine.UpdateStates(move: true);
-            actor.Behaviour.Movement.MoveToPosition();
+            Actor.Behaviour.StateMachine.UpdateStates(move: true);
+            Actor.Behaviour.Movement.MoveToPosition();
 
             yield return CheckIfArrivedToPosition();
 
-            actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
-            actor.Behaviour.StateMachine.UpdateStates(move: true);
+            Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+            Actor.Behaviour.StateMachine.UpdateStates(move: true);
 
-            actor.Behaviour.StateMachine.Update();
+            Actor.Behaviour.StateMachine.Update();
+
+            yield return null;
         }
 
         public IEnumerator IsGoingtoDetectableItemRoutine()
         {
-            var detectable = actor.GetCurrentDetectable<IDetectable>();
+            var detectable = Actor.GetCurrentDetectable<IDetectable>();
 
-            if (detectable == null)
+            if (detectable == null || detectable.ToString() == "null")
                 yield break;
 
-            actor.Behaviour.Movement.MoveToPosition(detectable.GetPosition());
-            actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
+            Actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
+            Actor.Behaviour.Movement.MoveToPosition(detectable.GetPosition());
 
-            yield return CheckIfArrivedToPosition();
+            yield return CheckIfArrivedToPositionConsumable(detectable);
 
-            actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.StayFront;
-            actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
+            if (detectable == null || detectable.ToString() == "null" ||
+                Actor.Senses.AnySenseWithTarget())
+            {
+                Actor.DetectableQueue.Remove(detectable);
 
-            actor.Behaviour.StateMachine.Update();
+                var nextDetectable = Actor.DetectableQueue.GetNextDetectable(Actor);
+                if (nextDetectable == null)
+                {
+                    Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                    Actor.Behaviour.StateMachine.UpdateStates(move: true);
+                    Actor.Behaviour.StateMachine.Update();
+                }
+                else
+                {
+                    Actor.Senses[0].Detect(Actor, nextDetectable);
+                }
+            }
+            else
+            {
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.StayFront;
+                Actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
+                Actor.Behaviour.StateMachine.Update();
+            }
+
+            yield return null;
         }
 
         public IEnumerator IsGoingtoFightRoutine()
         {
-            var actorTarget = actor.GetCurrentDetectable<ActorBase>();
+            var actorTarget = (ActorBase)Actor.CurrentTarget;
+
+            //var actorTarget = (ActorBase)actor.DetectableQueue.First();
 
             if (actorTarget == null || actorTarget.ToString() == "null")
                 yield break;
 
-            actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
-            actor.Behaviour.Movement.MoveToPosition(actorTarget.transform.position);
+            Actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
+            Actor.Behaviour.Movement.MoveToPosition(actorTarget.transform.position);
 
-            yield return CheckIfArrivedToPosition();
+            yield return CheckIfArrivedToPositionToFight(actorTarget);
 
-            if (!actor.Behaviour.StateMachine.CurrentState.IsFighting)
+            if (actorTarget == null || actorTarget.ToString() == "null" ||
+                Actor.Senses.AnySenseWithTarget<DistanceSense>())
             {
-                actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Attack;
-                actor.Behaviour.StateMachine.UpdateStates(fight: true);
-                actor.Behaviour.StateMachine.Update();
+                Actor.CurrentTarget = null;
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                Actor.Behaviour.StateMachine.UpdateStates(move: true);
             }
             else
-                yield break;
+            {
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Attack;
+                Actor.Behaviour.StateMachine.UpdateStates(fight: true);
+            }
 
+            Actor.Behaviour.StateMachine.Update();
+
+            yield return null;
         }
 
         public IEnumerator IsStayfrontRoutine()
         {
-            var consumable = actor.GetCurrentDetectable<IConsumable>();
+            var consumable = Actor.GetCurrentDetectable<IConsumable>();
 
             if (consumable == null || consumable.ToString() == "null")
                 yield break;
 
-            actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
-            actor.Behaviour.Movement.Navigation.Stop();
+            Actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
+            Actor.Behaviour.Movement.Navigation.Stop();
 
-            consumable.OnUpdateEntity += actor.PlusOnePointToActor(consumable);
-            consumable.InvokeUpdateEntityOverTime();
+            consumable.OnUpdateEntity += Actor.PlusOnePointToActor(consumable);
+            consumable.InvokeUpdateEntityOverTime(1, 1);
 
-            yield return CheckIfactorFinishWithConsumable(consumable);
+            yield return CheckIfActorFinishConsumable(consumable);
 
-            actor.Behaviour.Movement.Navigation.Restart();
-            actor.DetectableQueue.Remove(consumable);
+            Actor.Behaviour.Movement.Navigation.Restart();
+            Actor.DetectableQueue.Remove(consumable);
 
-            consumable.OnUpdateEntity -= actor.PlusOnePointToActor(consumable);
+            consumable.OnUpdateEntity -= Actor.PlusOnePointToActor(consumable);
             consumable.CancelUpdateEntityOverTime();
-            consumable.DestroyEntity();
+            consumable.SetUpdateToNull();
 
-            actor.DetectableQueue.GetNextDetectable(actor);
+            if (consumable.GetCurrentPoints() <= 0)
+            {
+                consumable.DestroyEntity();
+            }
 
-            actor.Behaviour.StateMachine.Update();
+            var nextDetectable = Actor.DetectableQueue.GetNextDetectable(Actor);
+            if (nextDetectable == null)
+            {
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                Actor.Behaviour.StateMachine.UpdateStates(move: true);
+                Actor.Behaviour.StateMachine.Update();
+            }
+            else
+            {
+                Actor.Senses[0].Detect(Actor, nextDetectable);
+                //Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToItem;
+                //Actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
+            }
+
+            yield return null;
         }
 
         public IEnumerator IsFightingRoutine()
         {
-            var actorTarget = actor.GetCurrentDetectable<ActorBase>();
+            var actorTarget = (ActorBase)Actor.CurrentTarget;
 
             if (actorTarget == null)
                 yield break;
 
-            actor.Behaviour.StateMachine.UpdateStates(fight: true);
-            actor.Behaviour.Movement.Navigation.Stop();
+            Actor.Behaviour.StateMachine.UpdateStates(fight: true);
+            Actor.Behaviour.Movement.Navigation.Stop();
+
+            //actorTarget.SetUpdateToNull();
 
             // Se resta vida al target ya que recibe primero!
-            actorTarget.OnUpdateEntity += actor.MinusOnePointToActor<HealthStatus>(actorTarget);
-            actorTarget.InvokeUpdateEntityOverTime();
+            actorTarget.OnUpdateEntity += Actor.MinusOnePointToActor<HealthStatus>(actorTarget);
+            actorTarget.InvokeUpdateEntityOverTime(1, 1);
 
             yield return CheckIfActorFinish(actorTarget);
 
-            if (actor == null || actorTarget == null)
+            if (Actor == null || actorTarget == null)
                 yield break;
 
-            actor.Behaviour.Movement.Navigation.Restart();
-            actor.DetectableQueue.Remove(actorTarget);
+            Actor.Behaviour.Movement.Navigation.Restart();
+            Actor.DetectableQueue.Remove(actorTarget);
 
-            actorTarget.OnUpdateEntity -= actor.MinusOnePointToActor<HealthStatus>(actorTarget);
+            actorTarget.OnUpdateEntity -= Actor.MinusOnePointToActor<HealthStatus>(actorTarget);
             actorTarget.CancelUpdateEntityOverTime();
+            actorTarget.SetUpdateToNull();
 
-            if (actor.IsTooFar(actorTarget))
-                actor.Senses[0].Detect(actor, actorTarget); //<-- sets NextState inside (continue going to fight)
-            else
+            // Terminamos de restar vida ya que el target ya no existe para golpearnos!
+            Actor.OnUpdateEntity -= actorTarget.MinusOnePointToActor<HealthStatus>(Actor);
+            Actor.CancelUpdateEntityOverTime();
+            Actor.SetUpdateToNull();
+
+            Actor.CurrentTarget = null;
+
+            if (Actor.Senses.OfType<DistanceSense>().Count(x => x.SenseBehaviour == SenseBehaviour.Agresive && x.Target == null) > 0)
             {
-                // Terminamos de restar vida ya que el target ya no existe para golpearnos!
-                actor.OnUpdateEntity -= actorTarget.MinusOnePointToActor<HealthStatus>(actor);
-                actor.CancelUpdateEntityOverTime();
-                actor.SetUpdateToNull();
-
-                // Se destruye el target
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
+                Actor.Behaviour.StateMachine.UpdateStates(gotoFight: true);
+                Actor.Behaviour.StateMachine.Update();
+            }
+            else if (Actor.IsDeath(actorTarget))
+            {
                 actorTarget.DestroyEntity();
 
-                actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
-                actor.Behaviour.StateMachine.UpdateStates(move: true);
+                Actor.Senses.SetSensorsTargetToNull<DistanceSense>(SenseBehaviour.Agresive);
+                Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                Actor.Behaviour.StateMachine.UpdateStates(move: true);
+                Actor.Behaviour.StateMachine.Update();
             }
 
-            actor.Behaviour.StateMachine.Update();
+            yield return null;
         }
 
 
@@ -180,33 +224,100 @@ namespace Assets.GameProject_1.States
             bool done = false;
             while (!done)
             {
-                var actorMovement = actor.Behaviour.Movement;
+                var actorMovement = Actor.Behaviour.Movement;
 
-                if (actorMovement.ArrivedToPosition(
-                    actor.transform.position,
-                    actorMovement.Navigation.NavigatorProps.stoppingDistance))
-                {
+                if (actorMovement.ArrivedToPosition(Actor.transform.position, actorMovement.Navigation.NavigatorProps.stoppingDistance))
                     done = true;
-                }
 
                 yield return null;
             }
         }
 
-        private IEnumerator CheckIfactorFinishWithConsumable(IConsumable consumable)
+        private IEnumerator CheckIfArrivedToPositionConsumable(IDetectable detectable)
         {
             bool done = false;
             while (!done)
             {
-                // If consumable is depleted
+                if (detectable == null || detectable.ToString() == "null")
+                    yield break;
+
+                var actorMovement = Actor.Behaviour.Movement;
+
+                var actorBounds = Actor.GetComponent<Collider>().bounds;
+                var targetBounds = detectable.GetGameObject().GetComponent<Collider>().bounds;
+
+                //Success = true
+                if (actorBounds.Intersects(targetBounds))
+                    done = true;
+
+                //Success = false
+                if (Actor.Senses.AnySenseWithTarget())
+                    done = true;
+
+                Actor.transform.LookAt(detectable.GetPosition());
+                actorMovement.MoveToPosition(detectable.GetPosition());
+
+                yield return null;
+            }
+        }
+
+        private IEnumerator CheckIfArrivedToPositionToFight(IDetectable detectable)
+        {
+            bool done = false;
+            while (!done)
+            {
+                if (detectable == null || detectable.ToString() == "null")
+                    yield break;
+
+                var actorMovement = Actor.Behaviour.Movement;
+
+                var actorBounds = Actor.GetComponent<Collider>().bounds;
+                var targetBounds = detectable.GetGameObject().GetComponent<Collider>().bounds;
+
+                //Success = true
+                if (actorBounds.Intersects(targetBounds))
+                    done = true;
+
+                //Success = true
+                if (Actor.Senses.OfType<DistanceSense>().Count(x => x.SenseBehaviour == SenseBehaviour.Agresive && x.Target != null) > 0)
+                    done = true;
+
+                //Success = false
+                if (Actor.Senses.AnySenseWithTarget<DistanceSense>())
+                    done = true;
+
+                Actor.transform.LookAt(detectable.GetPosition());
+                actorMovement.MoveToPosition(detectable.GetPosition());
+
+                yield return null;
+            }
+
+        }
+
+        private IEnumerator CheckIfActorFinishConsumable(IConsumable consumable)
+        {
+            bool done = false;
+            while (!done)
+            {
+                //Success = true
                 if (consumable.GetCurrentPoints() <= 0)
                     done = true;
 
-                // If actor is full
-                //var status = actor.StatusInstances.GetStatusFromConsumableType(consumable);
+                //Success = true
                 var status = consumable.StatusModified;
+                if (Actor.IsFull(status))
+                    done = true;
 
-                if (actor.IsFull(status))
+
+                var actorBounds = Actor.GetComponent<Collider>().bounds;
+                var targetBounds = consumable.GetGameObject().GetComponent<Collider>().bounds;
+                
+                //Success = false
+                if (!actorBounds.Intersects(targetBounds))
+                    done = true;
+
+                //Success = false
+                if (Actor.Senses.Count(x => x.SenseBehaviour == SenseBehaviour.Pacific && x.Target == null) > 0)
                     done = true;
 
                 yield return null;
@@ -218,13 +329,15 @@ namespace Assets.GameProject_1.States
             bool done = false;
             while (!done)
             {
-                if (actor.IsDeath(actorTarget))
+                //Success = true
+                if (Actor.IsDeath(actorTarget))
                     done = true;
 
-                if (actor.IsTooFar(actorTarget))
+                //Success = false
+                if (Actor.Senses.OfType<DistanceSense>().Count(x => x.SenseBehaviour == SenseBehaviour.Agresive && x.Target == null) > 0)
                     done = true;
 
-                actor.transform.LookAt(actorTarget.GetPosition());
+                Actor.transform.LookAt(actorTarget.GetPosition());
 
                 yield return null;
             }

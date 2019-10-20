@@ -6,7 +6,6 @@ namespace Assets.GameProject_1.Status
     public class CritterData : ScriptableObject
     {
         public string Name;
-        public float EatingTime;
         public float Speed;
         public float Acceleration;
         public float StopingDistance;

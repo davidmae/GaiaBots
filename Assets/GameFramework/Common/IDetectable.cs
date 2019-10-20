@@ -8,5 +8,6 @@ namespace Assets.GameFramework.Common
     {
         void Detect(ActorBase currentActor);
         Vector3 GetPosition();
+        GameObject GetGameObject();
     }
 }
