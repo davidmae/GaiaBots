@@ -14,6 +14,7 @@ namespace Assets.GameProject_1.Status
     public class DefecateStatus : StatusBase
     {
         public DefecateStatus() { }
+        public DefecateStatus(StatusTypes type) : base(type) { }
         public DefecateStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
 
         public override StatusBase GetStatusFrom(IConsumable consumable) => consumable is Consumable<DefecateStatus> ? this : null;

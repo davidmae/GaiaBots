@@ -29,6 +29,7 @@ namespace Assets.GameFramework
         public void SetUpdateToNull()
         {
             OnUpdateEntity = null;
+            CancelInvoke("OnUpdate");
         }
 
         public void DestroyEntity()
@@ -36,6 +37,10 @@ namespace Assets.GameFramework
             Destroy(gameObject);
         }
 
+        public Action GetOnUpdateVal()
+        {
+            return OnUpdateEntity;
+        }
         
     }
 }

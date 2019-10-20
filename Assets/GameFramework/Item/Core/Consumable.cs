@@ -1,4 +1,5 @@
 ﻿using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
 using System;
@@ -37,6 +38,7 @@ namespace Assets.GameFramework.Item.Core
             }
         }
 
+        public GameObject GetGameObject() => gameObject;
         public Vector3 GetPosition() => transform.position;
 
         public int GetCurrentPoints()

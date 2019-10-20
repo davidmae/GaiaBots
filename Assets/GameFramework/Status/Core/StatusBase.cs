@@ -13,15 +13,19 @@ namespace Assets.GameFramework.Status.Core
         public StatusTypes Type;
         public int Current;
         public int Treshold;
-        public int? MaxValue;
+        public int MaxValue;
 
         public StatusBase() { }
 
-        public StatusBase(StatusTypes type, int current, int treshold) : this(type, current, treshold, null)
+        public StatusBase(StatusTypes type, int current, int treshold) : this(type, current, treshold, 0)
         {
         }
 
-        public StatusBase(StatusTypes type, int current, int treshold, int? maxvalue)
+        public StatusBase(StatusTypes type) : this(type, 0, 0, 0)
+        {
+        }
+
+        public StatusBase(StatusTypes type, int current, int treshold, int maxvalue)
         {
             Type = type;
             Current = current;

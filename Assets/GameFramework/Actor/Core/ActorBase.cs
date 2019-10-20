@@ -13,8 +13,8 @@ namespace Assets.GameFramework.Actor.Core
 {
     public class PriorityQueue<T> : List<T> where T : IDetectable
     {
-        public void GetNextDetectable(ActorBase actor)
-        {
+        public T GetNextDetectable(ActorBase actor)
+        {   
             if (this.Count > 0)
             {
                 if (actor.IsFull(StatusTypes.Hungry))
@@ -24,20 +24,10 @@ namespace Assets.GameFramework.Actor.Core
                     this.Clear();
                 }
                 else
-                {
-                    var detectable = actor.DetectableQueue[0];
-                    actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToItem;
-                    actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
-
-                    //TODO: APAÑAR
-                    actor.Senses[0].Detect(actor, detectable);
-
-                    return;
-                }
+                    return this[0];
             }
 
-            actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
-            actor.Behaviour.StateMachine.UpdateStates(move: true);
+            return default(T);
         }
     }
 
@@ -48,7 +38,7 @@ namespace Assets.GameFramework.Actor.Core
         public PriorityQueue<IDetectable> DetectableQueue { get; set; }
         public List<SenseBase> Senses { get; set; }
 
-        public float attackDistance;
+        public IDetectableDynamic CurrentTarget = null;
 
         [Header("Debugging fields")]
 
@@ -67,28 +57,12 @@ namespace Assets.GameFramework.Actor.Core
 
             originalActor.transform.LookAt(transform.position);
 
-            var detectDistance = Vector3.Distance(originalActor.transform.position, transform.position);
-
-            var visionDistance = originalActor.GetComponentInChildren<DistanceSense>().Distance;
-            if (visionDistance < detectDistance)
+            if (originalActor.CurrentTarget == null)
             {
-                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+                originalActor.CurrentTarget = this;
+                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
                 originalActor.Behaviour.StateMachine.Update();
-                return;
             }
-
-            if (originalActor.attackDistance > detectDistance)
-            {
-                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Attack;
-                originalActor.Behaviour.StateMachine.Update();
-                return;
-            }
-
-            if (!originalActor.DetectableQueue.Contains(this))
-                originalActor.DetectableQueue.Add(this);
-
-            originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
-            originalActor.Behaviour.StateMachine.Update();
 
             //-----------------------------For debugging------------------------------
             //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -99,6 +73,7 @@ namespace Assets.GameFramework.Actor.Core
             //Debug.Log($"{name} has detected to {currentActor.name}");
         }
 
+        public GameObject GetGameObject() => gameObject;
         public Vector3 GetPosition() => transform.position;
 
         public virtual T GetCurrentDetectable<T>() where T : IDetectable
@@ -121,13 +96,16 @@ namespace Assets.GameFramework.Actor.Core
         {
             if (status == null) return true;
             status = StatusInstances.Values.FirstOrDefault(s => s.GetType() == status.GetType());
+            if (status == null) return true;
             return status.Current >= status.MaxValue;
         }
+
         public virtual bool IsFull(StatusTypes statusType)
         {
             var status = this.StatusInstances[statusType];
             return status.Current >= status.MaxValue;
         }
+
         public virtual bool IsFull()
         {
             bool isFull = true;
@@ -144,17 +122,11 @@ namespace Assets.GameFramework.Actor.Core
             return isFull;
         }
 
-        public virtual bool IsTooFar(ActorBase actorTarget)
-        {
-            var detectDistance = Vector3.Distance(transform.position, actorTarget.transform.position);
-            return attackDistance < detectDistance;
-        }
         public virtual bool IsDeath(ActorBase actorTarget)
         {
             var status = actorTarget.StatusInstances[StatusTypes.Health];
             return status.Current <= 0;
         }
-
 
         public virtual Action PlusOnePointToActor(IConsumable consumable)
         {
@@ -202,9 +174,9 @@ namespace Assets.GameFramework.Actor.Core
             return () =>
             {
                 var targetActor = (ActorBase)target;
-                int currValue = targetActor.StatusInstances.Values.FirstOrDefault(s => s.GetType() == typeof(TActorStatus)).Current;
+                int? currValue = targetActor.StatusInstances.Values.FirstOrDefault(s => s.GetType() == typeof(TActorStatus)).Current;
 
-                if (currValue >= 0)
+                if (currValue.Value >= 0)
                 {
                     targetActor
                         .StatusInstances.Values
@@ -214,6 +186,6 @@ namespace Assets.GameFramework.Actor.Core
             };
         }
 
-        
+
     }
 }

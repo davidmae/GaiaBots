@@ -14,6 +14,7 @@ namespace Assets.GameProject_1.Status
     public class HealthStatus : StatusBase
     {
         public HealthStatus() { }
+        public HealthStatus(StatusTypes type) : base(type) { }
         public HealthStatus(StatusTypes type, int current, int treshold, int maxvalue) : base(type, current, treshold, maxvalue) { }
 
         public override StatusBase GetStatusFrom(IConsumable consumable) => consumable is Consumable<HealthStatus> ? this : null;
