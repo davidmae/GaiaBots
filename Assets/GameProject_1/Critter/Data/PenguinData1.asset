@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: PenguinData1
   m_EditorClassIdentifier: 
   Name: Penguin
-  Speed: 2
+  Speed: 0
   Acceleration: 30
   StopingDistance: 2.5

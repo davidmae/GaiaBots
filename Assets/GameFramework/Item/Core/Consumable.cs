@@ -2,6 +2,7 @@
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Status.Core;
+using Assets.GameFramework.UI;
 using System;
 using UnityEngine;
 
@@ -12,7 +13,6 @@ namespace Assets.GameFramework.Item.Core
     {
         public int Value;
         public StatusBase StatusModified { get => GetStatusModified(); set => StatusModified = value; }
-
         public event Func<StatusBase> OnGetStatusModified;
         public StatusBase GetStatusModified()
         {
@@ -20,7 +20,6 @@ namespace Assets.GameFramework.Item.Core
                 return OnGetStatusModified();
             return null;
         }
-
 
         public virtual void Detect(ActorBase actor)
         {
@@ -40,17 +39,12 @@ namespace Assets.GameFramework.Item.Core
 
         public GameObject GetGameObject() => gameObject;
         public Vector3 GetPosition() => transform.position;
+        public int GetCurrentPoints() => Value;
+        public int MinusOnePoint() => Value == -1 ? Value : --Value;
 
-        public int GetCurrentPoints()
-        {
-            return Value;
-        }
+        
 
-        public int MinusOnePoint()
-        {
-            return Value == -1 ? Value : --Value;
-        }
-
+        
     }
 
 

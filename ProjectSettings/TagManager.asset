@@ -4,8 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Obstacle
+  - Food
+  - SideBar
+  - Ground
+  - CursorManager
+  - UIRoot
   - Critter
+  - Obstacle
   layers:
   - Default
   - TransparentFX

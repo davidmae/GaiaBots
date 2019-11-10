@@ -6,6 +6,7 @@ using Assets.GameFramework.Movement.Core;
 using Assets.GameFramework.Senses.Core;
 using Assets.GameFramework.Senses.Interfaces;
 using Assets.GameFramework.Status.Core;
+using Assets.GameFramework.UI;
 using Assets.GameProject_1.Senses;
 using Assets.GameProject_1.States;
 using Assets.GameProject_1.Status;
@@ -83,6 +84,9 @@ namespace Assets.GameProject_1.Critter
 
             animator = GetComponent<Animator>();
             camera = FindObjectOfType<Camera>();
+
+            base.cursorManager = FindObjectOfType<CursorManager>();
+            base.groundCollider = GameObject.FindGameObjectWithTag("Ground").GetComponent<Collider>();
         }
 
         private void Start()
