@@ -1,4 +1,4 @@
-# GaiaBots
+# GaiaBots (pre-Alpha)
 
 
 ## Game features 
