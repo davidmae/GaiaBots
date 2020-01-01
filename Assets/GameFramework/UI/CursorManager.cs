@@ -26,11 +26,19 @@ namespace Assets.GameFramework.UI
         [HideInInspector]
         public bool keepLastTexture = false;
 
+        //private static CursorManager _instance;
+        //public static CursorManager Instance { get => _instance; }
+
         public bool RemoveCursor { get => selectedCursor == removeItemCursor; }
 
         void Awake()
         {
-            Cursor.SetCursor(defaultCursor, hotspot, cursorMode);
+            //if (_instance != null && _instance != this)
+            //    Destroy(this.gameObject);
+            //else
+            //    _instance = this;
+
+            SetCursor(defaultCursor);
         }
 
         private void Update()
@@ -54,12 +62,12 @@ namespace Assets.GameFramework.UI
             //    }
             //}
 
-            if (Input.GetMouseButton(1))
-            {
-                Cursor.SetCursor(defaultCursor, hotspot, cursorMode);
-                keepLastTexture = false;
-                selectedEntity = null;
-            }
+            //if (Input.GetMouseButton(1))
+            //{
+            //    Cursor.SetCursor(defaultCursor, hotspot, cursorMode);
+            //    keepLastTexture = false;
+            //    selectedEntity = null;
+            //}
 
             //if (itemSelected != null)
             //    itemSelected.transform.position = new Vector3(hit.point.x, itemSelected.transform.position.y, hit.point.z);
@@ -80,6 +88,7 @@ namespace Assets.GameFramework.UI
             }
         }
 
+        // Called from "Event trigger" component in inspector
         public void KeepLastTexture() => keepLastTexture = !keepLastTexture;
 
         public void SetCursor(Texture2D texture)

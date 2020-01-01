@@ -1,6 +1,8 @@
 ﻿using Assets.GameFramework.Actor.Core;
 using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Item.Interfaces;
+using Assets.GameFramework.Senses.Core;
+using Assets.GameFramework.Senses.Interfaces;
 using Assets.GameFramework.Status.Interfaces;
 using System;
 using UnityEngine;
@@ -11,9 +13,10 @@ namespace Assets.GameFramework.Status.Core
     public class StatusBase : IStatus
     {
         public StatusTypes Type;
-        public int Current;
-        public int Treshold;
-        public int MaxValue;
+        public StatusUpdateMethod UpdateMethod;
+        public float Current;
+        public float Treshold;
+        public float MaxValue;
 
         public StatusBase() { }
 
@@ -36,16 +39,47 @@ namespace Assets.GameFramework.Status.Core
 
         public virtual void UpdateStatus(int value)
         {
-            Current += value;
+            Current = Mathf.Clamp(Current + value, 0, MaxValue);
             if (Current < Treshold)
                 Debug.Log($"StatusBase --- Current value is lower than treshold --- ");
         }
 
-        public virtual int UpdateStatus(int value, string opt = "")
+        public virtual void UpdateStatus(float value)
         {
-            UpdateStatus(value);
-            return Current;
+            Current = Mathf.Clamp(Current + value, 0, MaxValue);
+            if (Current < Treshold)
+                Debug.Log($"StatusBase --- Current value is lower than treshold --- ");
         }
+
+        public virtual void UpdateStatus(IConsumable consumable, RadiusSense senseFrom)
+        {
+            var bonus = consumable.GetBonusValue();
+
+            var ratio = MaxValue / senseFrom.MaxDistance;
+            ratio = (float)Math.Ceiling(ratio * 100) / 100;
+
+            senseFrom.Distance = Mathf.Clamp(senseFrom.Distance - (bonus / ratio), 0, senseFrom.MaxDistance);
+
+            if (UpdateMethod == StatusUpdateMethod.Incremental)
+                bonus = -1 * bonus;
+
+            UpdateStatus(bonus);
+        }
+
+        public virtual void UpdateStatus(RadiusSense senseFrom)
+        {
+            senseFrom.Distance++;
+
+            var ratio = MaxValue / senseFrom.MaxDistance;
+            ratio = (float)Math.Ceiling(ratio * 100) / 100;
+
+            if (UpdateMethod == StatusUpdateMethod.Decremental)
+                ratio = -1 * ratio;
+
+            UpdateStatus(ratio);
+        }
+
+        public virtual bool LimitReached() => UpdateMethod == StatusUpdateMethod.Decremental ? Current <= 0 : Current >= MaxValue;
 
     }
 }

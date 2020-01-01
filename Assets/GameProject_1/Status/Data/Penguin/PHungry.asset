@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PHungry
   m_EditorClassIdentifier: 
   StatusType: 0
-  Current: 85
-  Treshold: 50
-  MaxValue: 100
+  UpdateMethod: 1
+  Current: 50
+  Treshold: 25
+  MaxValue: 50

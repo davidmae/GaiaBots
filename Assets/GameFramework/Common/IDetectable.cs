@@ -1,12 +1,13 @@
 ﻿
 using Assets.GameFramework.Actor.Core;
+using Assets.GameFramework.Senses.Core;
 using UnityEngine;
 
 namespace Assets.GameFramework.Common
 {
     public interface IDetectable : IGFrameworkEntityBase
     {
-        void Detect(ActorBase currentActor);
+        void Detect(ActorBase currentActor, SenseBase senseFrom);
         Vector3 GetPosition();
         GameObject GetGameObject();
     }

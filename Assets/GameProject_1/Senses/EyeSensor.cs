@@ -2,12 +2,8 @@
 using Assets.GameFramework.Common;
 using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.Senses.Core;
-using Assets.GameProject_1.Status;
-using System;
-using System.Collections.Generic;
+using Assets.GameProject_1.Critter;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.GameProject_1.Senses
@@ -21,11 +17,37 @@ namespace Assets.GameProject_1.Senses
             Distance = GetComponent<ConeCollider>().Distance;
         }
 
+        public override void Detect(ActorBase actor, IDetectable detectable)
+        {
+            if (detectable == null)
+                return;
+
+            //if (detectable is IConsumable)
+            //{
+            //    var statusFromConsumable = ((IConsumable)detectable).StatusModified;
+            //    var sensor = Actor.Senses.Where(x => x.ExplicitStatusFromDetect == statusFromConsumable.Type).FirstOrDefault();
+            //    if (this.Distance > sensor.Distance)
+            //        return;
+            //}
+
+            Target = detectable;
+
+            if (detectable is IDetectableDynamic)
+            {
+                var critterSrc = Actor as CritterBase;
+                var critterTgt = detectable as CritterBase;
+                if (critterSrc.critterData.Specie == critterTgt.critterData.Specie)
+                    return;
+            }
+
+
+            base.Detect(actor, detectable);
+        }
+
         protected virtual void OnTriggerEnter(Collider other)
         {
             if (other != null)
             {
-                //Debug.Log($"{Actor.name} ::: OnTriggerEnter");
                 var detectable = other.GetComponent<IDetectable>();
                 Detect(Actor, detectable);
             }
@@ -47,6 +69,11 @@ namespace Assets.GameProject_1.Senses
                 var detectable = other.GetComponent<IDetectable>();
                 if (detectable == null)
                     return;
+
+                //if (SenseBehaviour == SenseBehaviour.Agresive)
+                //{
+                //    if (Vector3.Distance(transform.position, detectable.GetPosition()))
+                //}
 
                 //Debug.Log($"{Actor.name} ::: Target to NULL");
                 Target = null;

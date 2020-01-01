@@ -14,21 +14,64 @@ namespace Assets.GameFramework.Senses.Core
     public class RadiusSense : SenseBase
     {
         //public float Distance; //Radius
+        public float MaxDistance;
+        public float DistanceUpdateSeconds;
 
-        private void FixedUpdate()
+
+        private float seconds = 0f;
+
+        //private void FixedUpdate()
+        //{
+        //    if (StopSensor) return;
+
+        //    var colliders = Physics.OverlapSphere(transform.position, Distance);
+
+        //    //Target = null;
+        //    foreach (var collider in colliders)
+        //    {
+        //        var detectable = collider.GetComponent<IDetectable>();
+
+        //        if (detectable is IDetectableDynamic && ExplicitStatusFromDetect == StatusTypes.Libido)
+        //        {
+        //            if (Target == detectable) return;
+
+        //            var actorTarget = detectable.GetGameObject().GetComponent<ActorBase>();
+        //            if (actorTarget == null) return;
+        //            if (Actor.Genre == actorTarget.Genre)
+        //                return;
+        //        }
+
+        //        Detect(Actor, detectable);
+        //    }
+        //}
+
+
+        protected void Update()
         {
-            var colliders = Physics.OverlapSphere(transform.position, Distance);
+            if (StopSensor)
+                return;
 
-            Target = null;
-            foreach (var collider in colliders)
+            if (ExplicitStatusFromDetect == StatusTypes.Undefined) 
+                return;
+
+            StatusBase status;
+            if (Actor.StatusInstances.TryGetValue(ExplicitStatusFromDetect, out status) && status.LimitReached())
+                return;
+
+            if (seconds >= DistanceUpdateSeconds)
             {
-                var detectable = collider.GetComponent<IDetectable>();
-                Detect(Actor, detectable);
+                status?.UpdateStatus(this);
+                seconds = 0f;
             }
+            else
+                seconds += Time.deltaTime;
+
         }
 
         private void OnDrawGizmosSelected()
         {
+            if (Distance > MaxDistance) Distance = MaxDistance;
+
             #region Debugging
 
             Gizmos.color = Color.yellow;
@@ -36,6 +79,7 @@ namespace Assets.GameFramework.Senses.Core
 
             #endregion
         }
+
     }
 
     

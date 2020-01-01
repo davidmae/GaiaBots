@@ -23,11 +23,11 @@ namespace Assets.GameProject_1.Critter
 {
     [RequireComponent(typeof(MyNavigator))]
     [RequireComponent(typeof(Rigidbody))]
-    public class Critter : ActorBase
+    public class CritterBase : ActorBase
     {
         [Header("Data initialization")]
-        [SerializeField] protected CritterData critterData;
-        [SerializeField] protected List<StatusData> statusData;
+        [SerializeField] public CritterData critterData;
+        [SerializeField] public List<StatusData> statusData;
 
         float second = 1f;
         float time = 0f;
@@ -38,9 +38,10 @@ namespace Assets.GameProject_1.Critter
         public GameObject containerHealth;
         public GameObject containerHungry;
         public GameObject containerTarget;
-        public GameObject containerEvento;
+        public GameObject containerState;
+        public GameObject containerLibido;
 
-        TextMeshProUGUI health, hungry, target, evento;
+        TextMeshProUGUI health, hungry, target, state, libido;
         Animator animator;
         Camera camera;
 
@@ -56,19 +57,23 @@ namespace Assets.GameProject_1.Critter
             var statesFactory = new StatesFactory(this, (factory, states) =>
             {
                 states.AddState(StateMachine_BaseStates.Idle, factory.IsMovingRoutine);
-                states.AddState(StateMachine_BaseStates.StayFront, factory.IsStayfrontRoutine);
+                states.AddState(StateMachine_BaseStates.StayFront, factory.IsStayFrontConsumableRoutine);
                 states.AddState(StateMachine_BaseStates.GoingToItem, factory.IsGoingtoDetectableItemRoutine);
                 states.AddState(StateMachine_BaseStates.GoingToFight, factory.IsGoingtoFightRoutine);
                 states.AddState(StateMachine_BaseStates.Attack, factory.IsFightingRoutine);
+                states.AddState(StateMachine_BaseStates.StandToEntity, factory.IsStandToEntityRoutine);
+                states.AddState(StateMachine_BaseStates.GoingToEntity, factory.IsGoingtoLoveRoutine);
+                states.AddState(StateMachine_BaseStates.StayFrontEntity, factory.IsStayFrontEntityRoutine);
             });
 
+            Behaviour = new ActorBehaviour()
+            {
+                Actor = this,
+                Movement = new MovableAI(navigator),
+                StateMachine = new StateMachine(this, statesFactory.SelectedStates),
+                HostilityBehaviour = ActorBehaviour.PrepareHostilityBehaviour(critterData.Hostility)
+            };
 
-            var actor = this;
-            var movement = new MovableAI(navigator);
-            var stateMachine = new StateMachine(actor, statesFactory.SelectedStates);
-
-
-            Behaviour = new ActorBehaviour(actor, movement, stateMachine);
             StatusInstances = statusData.InitializeStatusInstancesFromStatusData();
             DetectableQueue = new PriorityQueue<IDetectable>();
 
@@ -79,8 +84,8 @@ namespace Assets.GameProject_1.Critter
             health = containerHealth.GetComponent<TextMeshProUGUI>();
             hungry = containerHungry.GetComponent<TextMeshProUGUI>();
             target = containerTarget.GetComponent<TextMeshProUGUI>();
-            evento = containerEvento.GetComponent<TextMeshProUGUI>();
-
+            state = containerState.GetComponent<TextMeshProUGUI>();
+            libido = containerLibido.GetComponent<TextMeshProUGUI>();
 
             animator = GetComponent<Animator>();
             camera = FindObjectOfType<Camera>();
@@ -101,8 +106,10 @@ namespace Assets.GameProject_1.Critter
 
             if (canvas != null)
             {
-                health.text = StatusInstances[StatusTypes.Health].Current.ToString();
-                hungry.text = StatusInstances[StatusTypes.Hungry].Current.ToString();
+                StatusBase status;
+                health.text = StatusInstances.TryGetValue(StatusTypes.Health, out status) == true ? status.Current.ToString() : "";
+                hungry.text = StatusInstances.TryGetValue(StatusTypes.Hungry, out status) == true ? status.Current.ToString() : "";
+                libido.text = StatusInstances.TryGetValue(StatusTypes.Libido, out status) == true ? status.Current.ToString() : "";
 
                 if (this.DetectableQueue.Count > 0)
                     target.text = this.DetectableQueue.Last().GetGameObject().name;
@@ -111,13 +118,15 @@ namespace Assets.GameProject_1.Critter
                 if (this.CurrentTarget != null)
                     target.text = this.CurrentTarget.GetGameObject().name;
 
+                state.text = Behaviour.StateMachine.NextState.ToString();
+
                 //evento.text = "From " + CurrentTarget.GetGameObject().name + " :: " + this.GetOnUpdateVal().Method;
 
                 //GetInvocationList()?.GetLength(0)
 
                 canvas.transform.LookAt(camera.transform.position);
             }
-            
+
 
             //#region Debugging
 
@@ -137,7 +146,7 @@ namespace Assets.GameProject_1.Critter
 
             //#endregion
         }
-        
+
         //protected virtual void OnTriggerEnter(Collider other)
         //{
         //    if (other != null)

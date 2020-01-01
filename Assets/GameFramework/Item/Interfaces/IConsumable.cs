@@ -17,7 +17,8 @@ namespace Assets.GameFramework.Item.Interfaces
 
         event Func<StatusBase> OnGetStatusModified;
         StatusBase GetStatusModified();
-        int GetCurrentPoints();
-        int MinusOnePoint();
+        int GetCurrentDurability();
+        float GetBonusValue();
+        int MinusOneDurabilityPoint();
     }
 }

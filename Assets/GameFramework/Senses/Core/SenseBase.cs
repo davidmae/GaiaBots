@@ -58,6 +58,15 @@ namespace Assets.GameFramework.Senses.Core
         {
             return senses.Count(x => x.Target != null) == 0;
         }
+        public static void StopSensorsWithTarget(this List<SenseBase> senses, IGFrameworkEntityBase target) => senses.Where(x => x.Target == target).ToList().ForEach(x => x.Stop());
+        public static void RestartSensorsWithTarget(this List<SenseBase> senses, IGFrameworkEntityBase target) => senses.Where(x => x.Target == target).ToList().ForEach(x => x.Restart());
+        public static bool IsInAttackRange(this List<SenseBase> senses, float distance)
+        {
+            var attackSensor = senses.OfType<DistanceSense>().Where(x => x.SenseBehaviour == SenseBehaviour.Agresive && x.Target != null).FirstOrDefault();
+            if (attackSensor == null) return false;
+            //Debug.Log($"distance {distance} --- attackSensor.Distance {attackSensor.Distance}");
+            return distance < attackSensor.Distance;
+        }
     }
 
     public abstract class SenseBase : MonoBehaviour, ISense
@@ -66,22 +75,27 @@ namespace Assets.GameFramework.Senses.Core
         public IDetectable Target;
 
         public float Distance;
+        public bool StopSensor = false;
+
         public SenseDetectionType DetectionType;
         public StatusTypes ExplicitStatusFromDetect;
         public SenseBehaviour SenseBehaviour;
 
+        public string TargetName;
+
         public virtual void Detect(ActorBase actor, IDetectable detectable)
         {
+            if (StopSensor)
+                return;
+
             if (detectable == null)
                 return;
 
             if (actor == null)
                 return;
 
-            if (actor.name == detectable.GetGameObject().name)
+            if (actor.gameObject == detectable.GetGameObject())
                 return;
-
-            Target = detectable;
 
             if (actor.Behaviour.StateMachine.CurrentState.IsStayFront)
                 return;
@@ -107,8 +121,25 @@ namespace Assets.GameFramework.Senses.Core
                 
             }
 
-            detectable.Detect(actor);
+            if (detectable is IDetectableDynamic)
+            {
+                if (DetectionType == SenseDetectionType.DetectRelative)
+                {
+                    if (ExplicitStatusFromDetect != StatusTypes.Undefined)
+                        return;
+                }
+            }
+
+            Target = detectable;
+            TargetName = detectable.GetGameObject().name;
+
+            Actor.CurrentSensorDistance = Distance;
+
+            detectable.Detect(actor, this);
         }
+
+        public void Stop() => StopSensor = true;
+        public void Restart() => StopSensor = false;
 
     }
 

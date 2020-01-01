@@ -16,6 +16,9 @@ namespace Assets.GameFramework.Behaviour.Core
         public ActorBase Actor { get; set; }
         public Movable Movement { get; set; }
         public StateMachine StateMachine { get; set; }
+        public HostilityBehaviour HostilityBehaviour { get; set; }
+
+        public ActorBehaviour() { }
 
         public ActorBehaviour(ActorBase actor, Movable movement, StateMachine stateMachine)
         {
@@ -23,5 +26,29 @@ namespace Assets.GameFramework.Behaviour.Core
             Movement = movement;
             StateMachine = stateMachine;
         }
+
+        public static HostilityBehaviour PrepareHostilityBehaviour(ScriptableObject hostilityBehaviourData)
+        {
+            var hostilityBehaviour = new HostilityBehaviour();
+
+            if (hostilityBehaviourData != null)
+            {
+                var value1 = hostilityBehaviourData.GetType().GetFields()[0].GetValue(hostilityBehaviourData);
+                var value2 = hostilityBehaviourData.GetType().GetFields()[1].GetValue(hostilityBehaviourData);
+                var value3 = hostilityBehaviourData.GetType().GetFields()[2].GetValue(hostilityBehaviourData);
+
+                hostilityBehaviour.Value = (int)value1;
+                hostilityBehaviour.IncrementSpeedFactor_MED = (float)value2;
+                hostilityBehaviour.IncrementSpeedFactor_MAX = (float)value3;
+            }
+            else
+            {
+                hostilityBehaviour = null;
+            }
+
+            return hostilityBehaviour;
+        }
+
     }
+
 }

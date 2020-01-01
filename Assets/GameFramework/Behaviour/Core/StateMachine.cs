@@ -20,7 +20,10 @@ namespace Assets.GameFramework.Behaviour.Core
         GoingToItem     =  1,
         GoingToFight    =  2,
         StayFront       =  3,
-        Attack          =  4
+        Attack          =  4,
+        StandToEntity   =  5,
+        GoingToEntity   =  6,
+        StayFrontEntity =  7
     }
 
     public class StateMachine
@@ -57,7 +60,8 @@ namespace Assets.GameFramework.Behaviour.Core
             Actor.StartCoroutine(action());
         }
 
-        public void UpdateStates(bool move = false, bool gotoItem = false, bool gotoFight = false, bool escape = false, bool stayfront = false, bool fight = false)
+        public void UpdateStates(bool move = false, bool gotoItem = false, bool gotoFight = false, bool escape = false, bool stayfront = false, bool fight = false, bool standto = false
+            , bool gotoLove = false, bool stayLoving = false)
         {
             CurrentState.moving = move;
             CurrentState.goToItem = gotoItem;
@@ -65,6 +69,9 @@ namespace Assets.GameFramework.Behaviour.Core
             CurrentState.escaping = escape;
             CurrentState.stayFront = stayfront;
             CurrentState.fighting = fight;
+            CurrentState.standTo = standto;
+            CurrentState.goToLove = gotoLove;
+            CurrentState.stayLoving = stayLoving;
 
             Actor.CurrentState = CurrentState;
         }

@@ -12,5 +12,7 @@ namespace Assets.GameFramework.Senses.Interfaces
     public interface ISense
     {
         void Detect(ActorBase actor = null, IDetectable detectable = null);
+        void Stop();
+        void Restart();
     }
 }

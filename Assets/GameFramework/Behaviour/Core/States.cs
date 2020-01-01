@@ -18,14 +18,19 @@ namespace Assets.GameFramework.Behaviour.Core
         public bool stayFront = false;
         public bool fighting = false;
 
+        public bool standTo = false;
+        public bool goToLove = false;
+        public bool stayLoving = false;
+
 
         public bool IsMoving => moving == true;
         public bool IsGoingToItem => goToItem == true;
         public bool IsGoingToFight => goToFight == true;
         public bool IsStayFront => stayFront == true;
         public bool IsFighting => fighting == true;
-
-
+        public bool IsStandTo => standTo == true;
+        public bool IsGoingToLove => goToLove == true;
+        public bool IsStayLoving => stayLoving == true;
 
     }
 }

@@ -35,7 +35,7 @@ namespace Assets.GameFramework
             //    OnUpdateEntity = null;
         }
 
-        public void SetUpdateToNull()
+        public void OnUpdateEntityToNull()
         {
             OnUpdateEntity = null;
             CancelInvoke("OnUpdate");

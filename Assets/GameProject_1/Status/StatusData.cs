@@ -1,6 +1,6 @@
 ﻿using Assets.GameFramework.Status.Core;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 namespace Assets.GameProject_1.Status
 {
@@ -8,6 +8,7 @@ namespace Assets.GameProject_1.Status
     public class StatusData : ScriptableObject
     {
         public StatusTypes StatusType;
+        public StatusUpdateMethod UpdateMethod;
         public int Current;
         public int Treshold;
         public int MaxValue;
@@ -22,16 +23,16 @@ namespace Assets.GameProject_1.Status
             switch (StatusType)
             {
                 case StatusTypes.Hungry:
-                    return new HungryStatus(StatusType, Current, Treshold, MaxValue);
+                    return new HungryStatus(StatusType, UpdateMethod, Current, Treshold, MaxValue);
 
                 case StatusTypes.Rage:
-                    return new RageStatus(StatusType, Current, Treshold);
-
-                case StatusTypes.Defecate:
-                    return new DefecateStatus(StatusType, Current, Treshold);
+                    return new RageStatus(StatusType, UpdateMethod, Current, Treshold);
 
                 case StatusTypes.Health:
-                    return new HealthStatus(StatusType, Current, Treshold, MaxValue);
+                    return new HealthStatus(StatusType, UpdateMethod, Current, Treshold, MaxValue);
+
+                case StatusTypes.Libido:
+                    return new LibidoStatus(StatusType, UpdateMethod, Current, Treshold, MaxValue);
 
                 default:
                     break;

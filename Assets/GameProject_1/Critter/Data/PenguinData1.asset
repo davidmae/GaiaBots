@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff46abf55f67a6348a986d1ee7d503b9, type: 3}
   m_Name: PenguinData1
   m_EditorClassIdentifier: 
+  Specie: 0
   Name: Penguin
-  Speed: 0
+  Speed: 1
   Acceleration: 30
-  StopingDistance: 2.5
+  StopingDistance: 1.8
+  Hostility: {fileID: 0}

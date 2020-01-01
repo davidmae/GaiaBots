@@ -8,13 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Assets.GameFramework.Senses.Interfaces;
+using System.Collections;
 
 namespace Assets.GameFramework.Actor.Core
 {
     public class PriorityQueue<T> : List<T> where T : IDetectable
     {
         public T GetNextDetectable(ActorBase actor)
-        {   
+        {
             if (this.Count > 0)
             {
                 if (actor.IsFull(StatusTypes.Hungry))
@@ -36,9 +37,23 @@ namespace Assets.GameFramework.Actor.Core
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
         public PriorityQueue<IDetectable> DetectableQueue { get; set; }
+
         public List<SenseBase> Senses { get; set; }
 
+        public float CurrentSensorDistance;
+
         public IDetectableDynamic CurrentTarget = null;
+
+        public enum ActorGenre
+        {
+            Undefined = -1,
+            Male = 0,
+            Female = 1
+        }
+        public ActorGenre Genre;
+        public ActorBase Dad;
+        public ActorBase Mom;
+        public int Generation = 0;
 
         [Header("Debugging fields")]
 
@@ -47,7 +62,8 @@ namespace Assets.GameFramework.Actor.Core
         public List<StatusBase> ListStatus;
         // ----------------------------------------
 
-        public virtual void Detect(ActorBase originalActor)
+
+        public virtual void Detect(ActorBase originalActor, SenseBase senseFrom)
         {
             if (this == null || this.ToString() == "null")
                 return;
@@ -55,14 +71,53 @@ namespace Assets.GameFramework.Actor.Core
             if (originalActor == this) //<<-- En ocasiones se detecta el mismo 
                 return;
 
-            originalActor.transform.LookAt(transform.position);
-
-            if (originalActor.CurrentTarget == null)
+            //TODO: Filter by libido value = 0
+            if (senseFrom.ExplicitStatusFromDetect == StatusTypes.Libido && originalActor.StatusInstances[StatusTypes.Libido].Current > 0)
             {
-                originalActor.CurrentTarget = this;
-                originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
-                originalActor.Behaviour.StateMachine.Update();
+                if (originalActor.CurrentTarget == null)
+                {
+                    originalActor.CurrentTarget = this;
+                    originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToEntity;
+                    originalActor.Behaviour.StateMachine.Update();
+                }
+
+                return;
             }
+
+            if (originalActor.Behaviour.HostilityBehaviour != null)
+            {
+                var hostilityAI = originalActor.Behaviour.HostilityBehaviour;
+                var distance = Vector3.Distance(originalActor.transform.position, this.transform.position);
+
+                if (hostilityAI.OutOfSight(hostilityAI.Value, distance, originalActor.CurrentSensorDistance))
+                    return;
+
+                originalActor.transform.LookAt(transform.position);
+
+                if (!originalActor.Behaviour.StateMachine.CurrentState.IsStandTo &&
+                    !originalActor.Behaviour.StateMachine.CurrentState.IsGoingToFight)
+                {
+
+                    if (originalActor.CurrentTarget != null)
+                        originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
+                    else
+                    {
+                        originalActor.CurrentTarget = this;
+                        originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.StandToEntity;
+                    }
+
+                    originalActor.Behaviour.StateMachine.Update();
+                }
+            }
+            //else
+            //{
+            //    if (originalActor.CurrentTarget == null)
+            //    {
+            //        originalActor.CurrentTarget = this;
+            //        originalActor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToFight;
+            //        originalActor.Behaviour.StateMachine.Update();
+            //    }
+            //}
 
             //-----------------------------For debugging------------------------------
             //var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -128,42 +183,16 @@ namespace Assets.GameFramework.Actor.Core
             return status.Current <= 0;
         }
 
-        public virtual Action PlusOnePointToActor(IConsumable consumable)
+        public virtual Action IncrementStatus(IConsumable consumable, RadiusSense senseFrom)
         {
             return () =>
             {
-                int currValue = consumable.MinusOnePoint();
+                int currValue = consumable.MinusOneDurabilityPoint();
 
                 if (currValue >= 0)
                 {
                     var status = StatusInstances.Values.FirstOrDefault(s => s.GetType() == consumable.StatusModified.GetType());
-                    status.UpdateStatus(1);
-                }
-            };
-        }
-
-        public virtual Action PlusOnePointToActor(StatusTypes statusType, IConsumable consumable)
-        {
-            return () =>
-            {
-                int currValue = consumable.MinusOnePoint();
-
-                if (currValue >= 0)
-                    StatusInstances[statusType].UpdateStatus(1);
-            };
-        }
-        public virtual Action PlusOnePointToActor<TActorStatus>(IConsumable consumable)
-            where TActorStatus : StatusBase
-        {
-            return () =>
-            {
-                int currValue = consumable.MinusOnePoint();
-
-                if (currValue >= 0)
-                {
-                    StatusInstances.Values
-                        .FirstOrDefault(s => s.GetType() == typeof(TActorStatus))
-                        .UpdateStatus(1);
+                    status.UpdateStatus(consumable, senseFrom);
                 }
             };
         }
@@ -174,7 +203,7 @@ namespace Assets.GameFramework.Actor.Core
             return () =>
             {
                 var targetActor = (ActorBase)target;
-                int? currValue = targetActor.StatusInstances.Values.FirstOrDefault(s => s.GetType() == typeof(TActorStatus)).Current;
+                float? currValue = targetActor.StatusInstances.Values.FirstOrDefault(s => s.GetType() == typeof(TActorStatus)).Current;
 
                 if (currValue.Value >= 0)
                 {
@@ -185,6 +214,35 @@ namespace Assets.GameFramework.Actor.Core
                 }
             };
         }
+
+        //public virtual Action PlusOnePointToActor(StatusTypes statusType, IConsumable consumable)
+        //{
+        //    return () =>
+        //    {
+        //        int currValue = consumable.MinusOneDurabilityPoint();
+
+        //        if (currValue >= 0)
+        //            StatusInstances[statusType].UpdateStatus(1);
+        //    };
+        //}
+
+        //public virtual Action PlusOnePointToActor<TActorStatus>(IConsumable consumable)
+        //    where TActorStatus : StatusBase
+        //{
+        //    return () =>
+        //    {
+        //        int currValue = consumable.MinusOneDurabilityPoint();
+
+        //        if (currValue >= 0)
+        //        {
+        //            StatusInstances.Values
+        //                .FirstOrDefault(s => s.GetType() == typeof(TActorStatus))
+        //                .UpdateStatus(1);
+        //        }
+        //    };
+        //}
+
+
 
 
     }

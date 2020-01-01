@@ -43,6 +43,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43e8bfde0ea1622408aad21049d7c14f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Distance: 0
+  StopSensor: 0
   DetectionType: 1
-  ExplicitStatusFromDetect: 3
-  Radius: 3
+  ExplicitStatusFromDetect: 0
+  SenseBehaviour: 0
+  TargetName: 
+  MaxDistance: 0
+  DistanceUpdateSeconds: 0

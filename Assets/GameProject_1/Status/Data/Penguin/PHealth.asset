@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PHealth
   m_EditorClassIdentifier: 
   StatusType: 3
-  Current: 5
-  Treshold: 3
-  MaxValue: 10
+  UpdateMethod: 1
+  Current: 30
+  Treshold: 15
+  MaxValue: 30

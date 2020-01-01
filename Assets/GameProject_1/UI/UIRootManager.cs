@@ -34,7 +34,8 @@ namespace Assets.GameProject_1.UI
         private void Awake()
         {
             graphicRaycaster = GetComponent<GraphicRaycaster>();
-            cursorManager = FindObjectOfType<CursorManager>();
+
+            cursorManager = GameObject.FindGameObjectWithTag("CursorManager").GetComponent<CursorManager>();
 
             animator = GetComponent<Animator>();
             animator.SetBool("ShowSideBar", showSidebar);
@@ -49,6 +50,13 @@ namespace Assets.GameProject_1.UI
             {
                 UpdateItems(cursorManager.selectedEntity);
                 cursorManager.removeEntity = false;
+                cursorManager.selectedEntity = null;
+            }
+
+            if (Input.GetMouseButton(1))
+            {
+                cursorManager.SetCursor(cursorManager.defaultCursor);
+                cursorManager.keepLastTexture = false;
                 cursorManager.selectedEntity = null;
             }
 
@@ -70,6 +78,7 @@ namespace Assets.GameProject_1.UI
                         spawn = false;
                         entityToSpawn = null;
                         cursorManager.selectedEntity = null;
+                        cursorManager.keepLastTexture = false;
                         cursorManager.SetCursor(cursorManager.defaultCursor);
                     }
                     else

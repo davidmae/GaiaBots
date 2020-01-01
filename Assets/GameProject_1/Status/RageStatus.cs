@@ -15,7 +15,11 @@ namespace Assets.GameProject_1.Status
     {
         public RageStatus() { }
         public RageStatus(StatusTypes type) : base(type) { }
-        public RageStatus(StatusTypes type, int current, int treshold) : base(type, current, treshold) { }
+        public RageStatus(StatusTypes type, StatusUpdateMethod updateMethod, int current, int treshold) : base(type, current, treshold)
+        {
+            UpdateMethod = updateMethod;
+        }
+
         public override StatusBase GetStatusFrom(IConsumable consumable) => consumable is Consumable<RageStatus> ? this : null;
 
         public override void UpdateStatus(int value)

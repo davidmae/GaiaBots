@@ -18,6 +18,7 @@ namespace Assets.GameFramework.Movement.Core
         public void Restart() => navigator.isStopped = false;
         public void Stop() => navigator.isStopped = true;
         public void SetDestination(Vector3 target) => navigator.SetDestination(target);
+        public void SetSpeed(float speed) => navigator.speed = speed;
 
         public NavMeshAgent NavigatorProps { get => navigator; }
     }
