@@ -28,6 +28,12 @@ namespace Assets.GameProject_1.UI
             counter = GetComponentInChildren<TextMeshProUGUI>();
         }
 
+        public IItem GetCurrentItem()
+        {
+            if (prefab == null) return null;
+            return prefab.GetComponent<IItem>();
+        }
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             // Start moving object from the beginning!

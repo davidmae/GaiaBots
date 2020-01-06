@@ -16,5 +16,8 @@ namespace Assets.GameFramework
         void CancelUpdateEntityOverTime();
         void DestroyEntity();
         void OnUpdateEntityToNull();
+
+        string GetOriginalName();
+        GameObject GetGameObject();
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Assets.GameFramework;
+using Assets.GameFramework.Item.Interfaces;
 using Assets.GameFramework.UI;
+using Assets.GameFramework.Item.Extensions;
 using Assets.GameProject_1.Item.Scripts;
 using Assets.GameProject_1.UI;
 using Assets.GameProject_1.Utils;
@@ -10,6 +12,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Assets.GameFramework.Item.Core;
+using Assets.GameFramework.Status.Core;
 
 namespace Assets.GameProject_1.UI
 {
@@ -113,7 +117,8 @@ namespace Assets.GameProject_1.UI
         public void UpdateItems(GameObject entity)
         {
             var slotFilledWithSameItem = itemsSlots.FirstOrDefault(x => x.currentItem != null &&
-                                                                        x.currentItem.prefab?.GetOriginalName() == entity?.GetOriginalName());
+                                                                        x.currentItem.GetCurrentItem().Equals(entity.GetComponent<IItem>()));
+
             if (slotFilledWithSameItem != null)
             {
                 slotFilledWithSameItem.currentItem.counter.text = (Convert.ToInt32(slotFilledWithSameItem.currentItem.counter.text) + 1).ToString();

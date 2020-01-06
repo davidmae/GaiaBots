@@ -40,15 +40,26 @@ namespace Assets.GameFramework.Item.Core
             }
         }
 
-        public GameObject GetGameObject() => gameObject;
         public Vector3 GetPosition() => transform.position;
         public int GetCurrentDurability() => Durability;
         public float GetBonusValue() => BonusValue;
         public int MinusOneDurabilityPoint() => Durability == -1 ? Durability : --Durability;
 
-        
+        public bool Equals(IItem item)
+        {
+            var consumable = item as IConsumable;
 
-        
+            return
+                GetType().BaseType == consumable.GetType().BaseType &&
+                GetOriginalName() == consumable.GetOriginalName() &&
+                GetBonusValue() == consumable.GetBonusValue() &&
+                GetCurrentDurability() == consumable.GetCurrentDurability();
+        }
+
+        public object GetItemFields()
+        {
+            return "{ Durability : " + Durability + ", BonusValue : " + BonusValue + " }";
+        }
     }
 
 

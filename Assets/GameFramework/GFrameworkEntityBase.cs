@@ -51,6 +51,14 @@ namespace Assets.GameFramework
             return OnUpdateEntity;
         }
 
+        public GameObject GetGameObject() => gameObject;
+        public string GetOriginalName()
+        {
+            var index = gameObject.name.IndexOf(" (");
+            var res = gameObject.name.Substring(0, index < 0 ? gameObject.name.Length : index);
+            return res;
+        }
+
 
         // Mouse events/functions
 
@@ -86,6 +94,9 @@ namespace Assets.GameFramework
             {
                 transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);
             }
+
+            groundCollider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 2000.0F);
+            Debug.Log(hit.collider);
         }
 
         public void BindToCursor(bool bind)

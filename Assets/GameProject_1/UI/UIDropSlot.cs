@@ -25,7 +25,6 @@ namespace Assets.GameProject_1.UI
         // Tells if slot is filled by other item.
         public bool SlotFilled => currentItem;
 
-
         public void OnPointerClick(PointerEventData eventData)
         {
             uiRoot.ChangeCursorToCurrentPrefab(this);
@@ -39,6 +38,7 @@ namespace Assets.GameProject_1.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            Debug.Log(currentItem?.GetCurrentItem().GetItemFields());
             cursorManager.SetCursor(cursorManager.hoverItemCursor);
         }
     }

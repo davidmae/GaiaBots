@@ -11,12 +11,6 @@ namespace Assets.GameProject_1.Utils
 {
     public static class Utils
     {
-        public static string GetOriginalName(this GameObject go)
-        {
-            var index = go.name.IndexOf('(') - 1;
-            return go.name.Substring(0, index < 0 ? go.name.Length : index);
-        }
-
         public static void GiveBirthBabyCritter(this ActorBase mom, ActorBase dad)
         {
             if (mom.Genre == ActorBase.ActorGenre.Female)
