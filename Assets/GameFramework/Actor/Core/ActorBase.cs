@@ -37,12 +37,12 @@ namespace Assets.GameFramework.Actor.Core
         public ActorBehaviour Behaviour { get; set; }
         public IDictionary<StatusTypes, StatusBase> StatusInstances { get; set; }
         public PriorityQueue<IDetectable> DetectableQueue { get; set; }
-
         public List<SenseBase> Senses { get; set; }
-
-        public float CurrentSensorDistance;
+        
 
         public IDetectableDynamic CurrentTarget = null;
+       
+        public float CurrentSensorDistance;
 
         public enum ActorGenre
         {
@@ -63,13 +63,13 @@ namespace Assets.GameFramework.Actor.Core
         // ----------------------------------------
 
 
-        public virtual void Detect(ActorBase originalActor, SenseBase senseFrom)
+        public virtual bool Detect(ActorBase originalActor, SenseBase senseFrom)
         {
             if (this == null || this.ToString() == "null")
-                return;
+                return false;
 
             if (originalActor == this) //<<-- En ocasiones se detecta el mismo 
-                return;
+                return false;
 
             //TODO: Filter by libido value = 0
             if (senseFrom.ExplicitStatusFromDetect == StatusTypes.Libido && originalActor.StatusInstances[StatusTypes.Libido].Current > 0)
@@ -81,7 +81,7 @@ namespace Assets.GameFramework.Actor.Core
                     originalActor.Behaviour.StateMachine.Update();
                 }
 
-                return;
+                return false;
             }
 
             if (originalActor.Behaviour.HostilityBehaviour != null)
@@ -90,7 +90,7 @@ namespace Assets.GameFramework.Actor.Core
                 var distance = Vector3.Distance(originalActor.transform.position, this.transform.position);
 
                 if (hostilityAI.OutOfSight(hostilityAI.Value, distance, originalActor.CurrentSensorDistance))
-                    return;
+                    return false;
 
                 originalActor.transform.LookAt(transform.position);
 
@@ -109,6 +109,9 @@ namespace Assets.GameFramework.Actor.Core
                     originalActor.Behaviour.StateMachine.Update();
                 }
             }
+
+            return true;
+
             //else
             //{
             //    if (originalActor.CurrentTarget == null)
@@ -214,6 +217,50 @@ namespace Assets.GameFramework.Actor.Core
                 }
             };
         }
+
+        public override List<KeyValuePair<string, object>> GetEntityFields()
+        {
+            var res = new List<KeyValuePair<string, object>>();
+
+            foreach (var status in StatusInstances)
+            {
+                var name = status.Value.Type.ToString();
+                var value = status.Value.Current + " / " + status.Value.MaxValue;
+                res.Add(new KeyValuePair<string, object>(name, value));
+            }
+
+            return res;
+        }
+
+        public override GFrameworkEntityBase DeepCopy()
+        {
+            var actorBase = Instantiate(this);
+            actorBase.gameObject.SetActive(true);
+            //actorBase.Behaviour = Behaviour;
+            actorBase.StatusInstances = StatusInstances;
+            //actorBase.DetectableQueue = DetectableQueue;
+            actorBase.Senses = Senses;
+            //actorBase.CurrentSensorDistance = CurrentSensorDistance;
+            //actorBase.CurrentTarget = CurrentTarget;
+            actorBase.Dad = Dad;
+            actorBase.Mom = Mom;
+            //actorBase.Generation = Generation;
+            actorBase.CurrentState = CurrentState;
+            actorBase.ListStatus = ListStatus;
+            return actorBase;
+        }
+
+
+        //public override bool Equals(IGFrameworkEntityBase item)
+        //{
+        //    var consumable = item as IConsumable;
+
+        //    return
+        //        GetType().BaseType == consumable.GetType().BaseType &&
+        //        GetOriginalName() == consumable.GetOriginalName() &&
+        //        GetBonusValue() == consumable.GetBonusValue() &&
+        //        GetCurrentDurability() == consumable.GetCurrentDurability();
+        //}
 
         //public virtual Action PlusOnePointToActor(StatusTypes statusType, IConsumable consumable)
         //{

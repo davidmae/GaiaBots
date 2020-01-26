@@ -1,5 +1,6 @@
 ﻿using Assets.GameFramework.UI;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.GameFramework
@@ -13,8 +14,8 @@ namespace Assets.GameFramework
         protected bool cursorBinding = false;
         protected Collider groundCollider;
 
-
         public event Action OnUpdateEntity;
+
 
         public void OnUpdate()
         {
@@ -52,11 +53,44 @@ namespace Assets.GameFramework
         }
 
         public GameObject GetGameObject() => gameObject;
-        public string GetOriginalName()
+        public virtual string GetOriginalName()
         {
             var index = gameObject.name.IndexOf(" (");
             var res = gameObject.name.Substring(0, index < 0 ? gameObject.name.Length : index);
             return res;
+        }
+
+        public virtual List<KeyValuePair<string, object>> GetEntityFields()
+        {
+            return new List<KeyValuePair<string, object>>();
+        }
+
+        public virtual bool Equals(IGFrameworkEntityBase other)
+        {
+            return false;
+        }
+
+        public virtual GFrameworkEntityBase DeepCopy()
+        {
+            var entity = Instantiate(this);
+            entity.entityTexture = entityTexture;
+            entity.cursorTexture = cursorTexture;
+            entity.cursorManager = cursorManager;
+            entity.cursorBinding = cursorBinding;
+            entity.groundCollider = groundCollider;
+            entity.OnUpdateEntity = OnUpdateEntity;
+            return entity;
+        }
+
+        public virtual GFrameworkEntityBase DeepCopy(GFrameworkEntityBase entity)
+        {
+            entity.entityTexture = entityTexture;
+            entity.cursorTexture = cursorTexture;
+            entity.cursorManager = cursorManager;
+            entity.cursorBinding = cursorBinding;
+            entity.groundCollider = groundCollider;
+            entity.OnUpdateEntity = OnUpdateEntity;
+            return entity;
         }
 
 
@@ -67,18 +101,20 @@ namespace Assets.GameFramework
             if (cursorManager.RemoveCursor)
             {
                 cursorManager.removeEntity = true;
-                cursorManager.selectedEntity = this.gameObject;
+                cursorManager.selectedEntity = this;
             }
         }
 
         private void OnMouseEnter()
         {
             cursorManager.SetCursor(cursorManager.hoverItemCursor);
+            cursorManager.hoverEntity = this;
         }
 
         private void OnMouseExit()
         {
             cursorManager.SetCursor(cursorManager.defaultCursor);
+            cursorManager.hoverEntity = null;
         }
 
         private void OnMouseDrag()
@@ -94,9 +130,6 @@ namespace Assets.GameFramework
             {
                 transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);
             }
-
-            groundCollider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 2000.0F);
-            Debug.Log(hit.collider);
         }
 
         public void BindToCursor(bool bind)
@@ -109,6 +142,7 @@ namespace Assets.GameFramework
             if (cursorBinding)
                 DraggingItem();
         }
+
 
     }
 }

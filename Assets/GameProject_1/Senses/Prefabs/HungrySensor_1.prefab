@@ -47,7 +47,7 @@ MonoBehaviour:
   StopSensor: 0
   DetectionType: 1
   ExplicitStatusFromDetect: 0
-  SenseBehaviour: 0
+  SenseBehaviour: 1
   TargetName: 
-  MaxDistance: 0
-  DistanceUpdateSeconds: 0
+  MaxDistance: 40
+  DistanceUpdateSeconds: 10

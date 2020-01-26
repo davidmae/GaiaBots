@@ -17,10 +17,10 @@ namespace Assets.GameProject_1.Senses
             Distance = GetComponent<ConeCollider>().Distance;
         }
 
-        public override void Detect(ActorBase actor, IDetectable detectable)
+        public override bool Detect(ActorBase actor, IDetectable detectable)
         {
             if (detectable == null)
-                return;
+                return false;
 
             //if (detectable is IConsumable)
             //{
@@ -37,11 +37,12 @@ namespace Assets.GameProject_1.Senses
                 var critterSrc = Actor as CritterBase;
                 var critterTgt = detectable as CritterBase;
                 if (critterSrc.critterData.Specie == critterTgt.critterData.Specie)
-                    return;
+                    return false;
             }
 
 
-            base.Detect(actor, detectable);
+            return base.Detect(actor, detectable);
+
         }
 
         protected virtual void OnTriggerEnter(Collider other)

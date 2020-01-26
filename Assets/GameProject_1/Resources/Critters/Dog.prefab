@@ -1372,7 +1372,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e0f4b30ef5775f489aff14e248fcb80, type: 2}
   - {fileID: 11400000, guid: fee4468a2d5fad44a8867f68a14138fa, type: 2}
   - {fileID: 11400000, guid: f17903ed33d164a45985c4302123dcf4, type: 2}
-  canvas: {fileID: 0}
+  canvas: {fileID: 1813048215601186726}
   containerHealth: {fileID: 5233036238950304551}
   containerHungry: {fileID: 2286164459212001436}
   containerTarget: {fileID: 8913599447052200526}
@@ -1911,16 +1911,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: HungrySensor_1
       objectReference: {fileID: 0}
-    - target: {fileID: 9158893482586765514, guid: e10521c31ba3c644fa227680777c0fd4,
-        type: 3}
-      propertyPath: Distance
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9158893482586765514, guid: e10521c31ba3c644fa227680777c0fd4,
-        type: 3}
-      propertyPath: SenseBehaviour
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e10521c31ba3c644fa227680777c0fd4, type: 3}
 --- !u!4 &537857832615211986 stripped
@@ -1995,11 +1985,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SurvivorSensor_1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8504059605694076879, guid: 67af978035c3bae4ab23e0880ce51be5,
-        type: 3}
-      propertyPath: Distance
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67af978035c3bae4ab23e0880ce51be5, type: 3}
@@ -2076,16 +2061,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8504059605694076879, guid: 329d103864b9a7d4c800ba6d11e1136a,
-        type: 3}
-      propertyPath: Distance
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8504059605694076879, guid: 329d103864b9a7d4c800ba6d11e1136a,
-        type: 3}
-      propertyPath: DistanceUpdateSeconds
-      value: 20
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 329d103864b9a7d4c800ba6d11e1136a, type: 3}
 --- !u!4 &1534845454359050181 stripped
@@ -2160,16 +2135,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: AttackSensor_1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5494523317958365057, guid: c0a1a072d2dbf4e44808f17228a38931,
-        type: 3}
-      propertyPath: m_angle
-      value: 17.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5494523317958365057, guid: c0a1a072d2dbf4e44808f17228a38931,
-        type: 3}
-      propertyPath: m_distance
-      value: 3.42
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0a1a072d2dbf4e44808f17228a38931, type: 3}

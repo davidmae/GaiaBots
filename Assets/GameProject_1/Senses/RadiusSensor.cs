@@ -30,6 +30,8 @@ namespace Assets.GameProject_1.Senses
 
             var colliders = Physics.OverlapSphere(transform.position, Distance);
 
+            Target = null;
+
             foreach (var collider in colliders)
             {
                 if (ExplicitStatusFromDetect == StatusTypes.Libido)

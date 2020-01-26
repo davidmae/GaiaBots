@@ -44,6 +44,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Distance: 0
+  StopSensor: 0
   DetectionType: 1
   ExplicitStatusFromDetect: 3
   SenseBehaviour: 1
+  TargetName: 
+  MaxDistance: 25
+  DistanceUpdateSeconds: 20

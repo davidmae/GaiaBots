@@ -7,7 +7,7 @@ namespace Assets.GameFramework.Common
 {
     public interface IDetectable : IGFrameworkEntityBase
     {
-        void Detect(ActorBase currentActor, SenseBase senseFrom);
+        bool Detect(ActorBase currentActor, SenseBase senseFrom);
         Vector3 GetPosition();
         GameObject GetGameObject();
     }

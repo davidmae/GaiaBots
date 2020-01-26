@@ -15,7 +15,8 @@ namespace Assets.GameFramework.UI
         public Texture2D removeItemCursor;
 
         public Texture2D selectedCursor;
-        public GameObject selectedEntity;
+        public GFrameworkEntityBase selectedEntity;
+        public GFrameworkEntityBase hoverEntity;
         public Canvas canvas;
 
         public bool removeEntity;
@@ -75,15 +76,22 @@ namespace Assets.GameFramework.UI
         }
 
 
-        public void SpawnGameObject(GameObject entity, ref bool spawned)
+        public void SpawnGameObject(GFrameworkEntityBase entity, ref bool spawned)
         {
             if (entity == null) return;
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 1000) && hit.collider.gameObject.CompareTag("Ground"))
             {
-                var newEntity = Instantiate(entity, new Vector3(hit.point.x, entity.transform.position.y, hit.point.z), Quaternion.identity);
-                newEntity.SetActive(true);
+                var newEntity = entity.DeepCopy();
+                newEntity.gameObject.transform.position = new Vector3(hit.point.x, entity.transform.position.y, hit.point.z);
+                newEntity.gameObject.transform.rotation = Quaternion.identity;
+                newEntity.gameObject.name = newEntity.gameObject.name.Replace("(Clone)", "");
+
+                //entity.gameObject.transform.position = new Vector3(hit.point.x, entity.transform.position.y, hit.point.z);
+                //entity.gameObject.transform.rotation = Quaternion.identity;
+                //entity.DeepCopy();
+
                 spawned = true;
             }
         }

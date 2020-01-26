@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Assets.GameFramework
 {
-    public interface IGFrameworkEntityBase
+    public interface IGFrameworkEntityBase : IEquatable<IGFrameworkEntityBase>
     {
         event Action OnUpdateEntity;
 
@@ -19,5 +19,8 @@ namespace Assets.GameFramework
 
         string GetOriginalName();
         GameObject GetGameObject();
+        List<KeyValuePair<string, object>> GetEntityFields();
+        GFrameworkEntityBase DeepCopy();
+        GFrameworkEntityBase DeepCopy(GFrameworkEntityBase entity);
     }
 }

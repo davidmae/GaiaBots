@@ -13,27 +13,27 @@ namespace Assets.GameFramework.Senses.Core
 {
     public class DistanceSense : SenseBase
     {
-        public override void Detect(ActorBase actor, IDetectable detectable)
+        public override bool Detect(ActorBase actor, IDetectable detectable)
         {
             if (detectable == null)
-                return;
+                return false;
 
             if (detectable is IConsumable)
             {
                 var statusFromConsumable = ((IConsumable)detectable).StatusModified;
                 var sensor = Actor.Senses.Where(x => x.ExplicitStatusFromDetect == statusFromConsumable.Type).FirstOrDefault();
                 if (this.Distance > sensor.Distance)
-                    return;
+                    return false;
             }
 
             if (detectable is IDetectableDynamic &&
                 SenseBehaviour == SenseBehaviour.Agresive &&
                 Vector3.Distance(transform.position, detectable.GetPosition()) > Distance)
             {
-                return;
+                return false;
             }
 
-            base.Detect(actor, detectable);
+            return base.Detect(actor, detectable);
         }
     }
 }

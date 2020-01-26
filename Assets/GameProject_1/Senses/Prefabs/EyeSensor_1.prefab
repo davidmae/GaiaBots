@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 544e52e7528d39543a55e8259cace9bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_angle: 13.5
-  m_distance: 7.24
+  m_angle: 19.4
+  m_distance: 12
   m_isTrigger: 1
   m_isFixScale: 1
 --- !u!114 &2009507461900587069
@@ -61,3 +61,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Distance: 0
+  StopSensor: 0
+  DetectionType: 0
+  ExplicitStatusFromDetect: -1
+  SenseBehaviour: 1
+  TargetName: 

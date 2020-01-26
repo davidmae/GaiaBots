@@ -67,6 +67,7 @@ namespace Assets.GameFramework.Senses.Core
             //Debug.Log($"distance {distance} --- attackSensor.Distance {attackSensor.Distance}");
             return distance < attackSensor.Distance;
         }
+        public static SenseBase GetSenseWithTarget(this List<SenseBase> senses, IDetectable target) => senses.Where(x => x.Target == target).FirstOrDefault();
     }
 
     public abstract class SenseBase : MonoBehaviour, ISense
@@ -83,40 +84,42 @@ namespace Assets.GameFramework.Senses.Core
 
         public string TargetName;
 
-        public virtual void Detect(ActorBase actor, IDetectable detectable)
+        public virtual bool Detect(ActorBase actor, IDetectable detectable)
         {
+            Target = null;
+
             if (StopSensor)
-                return;
+                return false;
 
             if (detectable == null)
-                return;
+                return false;
 
             if (actor == null)
-                return;
+                return false;
 
             if (actor.gameObject == detectable.GetGameObject())
-                return;
+                return false;
 
             if (actor.Behaviour.StateMachine.CurrentState.IsStayFront)
-                return;
+                return false;
 
             if (actor.Behaviour.StateMachine.CurrentState.IsFighting)
-                return;
+                return false;
 
             if (detectable is IConsumable)
             {
                 var statusFromConsumable = ((IConsumable)detectable).StatusModified;
 
                 if (statusFromConsumable == null)
-                    return;
+                    return false;
 
                 if (actor.IsFull(statusFromConsumable))
-                    return;
+                    return false;
 
                 if (DetectionType == SenseDetectionType.DetectRelative)
                 {
                     if (statusFromConsumable.Type != ExplicitStatusFromDetect)
-                        return;
+                        return false;
                 }
                 
             }
@@ -126,7 +129,7 @@ namespace Assets.GameFramework.Senses.Core
                 if (DetectionType == SenseDetectionType.DetectRelative)
                 {
                     if (ExplicitStatusFromDetect != StatusTypes.Undefined)
-                        return;
+                        return false;
                 }
             }
 
@@ -135,7 +138,7 @@ namespace Assets.GameFramework.Senses.Core
 
             Actor.CurrentSensorDistance = Distance;
 
-            detectable.Detect(actor, this);
+            return detectable.Detect(actor, this);
         }
 
         public void Stop() => StopSensor = true;

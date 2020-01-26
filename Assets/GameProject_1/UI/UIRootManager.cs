@@ -20,7 +20,7 @@ namespace Assets.GameProject_1.UI
 
     public class UIRootManager : MonoBehaviour /*IPointerClickHandler*/
     {
-        public GameObject entityToSpawn;
+        public GFrameworkEntityBase entityToSpawn;
         public bool showSidebar;
         public List<UIDropSlot> itemsSlots;
         public UIDropSlot selectedSlot;
@@ -84,6 +84,9 @@ namespace Assets.GameProject_1.UI
                         cursorManager.selectedEntity = null;
                         cursorManager.keepLastTexture = false;
                         cursorManager.SetCursor(cursorManager.defaultCursor);
+                        selectedSlot.currentItem = null;
+                        selectedSlot = null;
+                        selectedDragItem = null;
                     }
                     else
                         selectedDragItem.counter.text = (Convert.ToInt32(selectedDragItem.counter.text) - 1).ToString();
@@ -114,15 +117,15 @@ namespace Assets.GameProject_1.UI
         //}
 
         /// Actualiza el sidebar con los objetos que recogemos/destruimos en el mapa
-        public void UpdateItems(GameObject entity)
+        public void UpdateItems(GFrameworkEntityBase entity)
         {
             var slotFilledWithSameItem = itemsSlots.FirstOrDefault(x => x.currentItem != null &&
-                                                                        x.currentItem.GetCurrentItem().Equals(entity.GetComponent<IItem>()));
+                                                                        x.currentItem.GetCurrentEntity().Equals(entity));
 
             if (slotFilledWithSameItem != null)
             {
                 slotFilledWithSameItem.currentItem.counter.text = (Convert.ToInt32(slotFilledWithSameItem.currentItem.counter.text) + 1).ToString();
-                Destroy(cursorManager.selectedEntity);
+                Destroy(cursorManager.selectedEntity.gameObject);
                 return;
             }
 
@@ -139,10 +142,12 @@ namespace Assets.GameProject_1.UI
 
             // Establece los valores del script del item de dentro del slot, y clona la entidad ocultandola (active = false)
             dragItemScript.currentSlot = slotEmpty;
-            dragItemScript.prefab = Instantiate(entity);
-            dragItemScript.prefab.SetActive(false);
+            dragItemScript.prefab = entityBase.DeepCopy();
+            dragItemScript.prefab.gameObject.name = dragItemScript.prefab.gameObject.name.Replace("(Clone)", "");
+            dragItemScript.prefab.gameObject.SetActive(false);
             dragItemScript.prefabCursor = entityBase.cursorTexture;
             dragItemScript.counter.text = (Convert.ToInt32(dragItemScript.counter.text) +1).ToString();
+            dragItemScript.name = dragItemScript.name.Replace("(Clone)", "");
 
             // Indica la textura que tendrá el item en la UI del slot
             dragItemImage.texture = entityBase.entityTexture;
@@ -150,8 +155,7 @@ namespace Assets.GameProject_1.UI
             slotEmpty.currentItem = dragItemScript;
 
             // Destruye el item que acabamos de recoger
-            Destroy(cursorManager.selectedEntity);
-
+            Destroy(cursorManager.selectedEntity.gameObject);
         }
 
         public void ChangeCursorToCurrentPrefab(UIDropSlot slot)

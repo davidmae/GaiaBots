@@ -1,10 +1,11 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace Assets.GameFramework.Item.Interfaces
 {
-    public interface IItem : IGFrameworkEntityBase, IEquatable<IItem>
+    public interface IItem : IGFrameworkEntityBase//, IEquatable<IItem>
     {
-        object GetItemFields();
+        //IList<KeyValuePair<string, object>> GetItemFields();
     }
 }

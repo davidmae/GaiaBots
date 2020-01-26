@@ -1,4 +1,5 @@
-﻿using Assets.GameFramework.Item.Interfaces;
+﻿using Assets.GameFramework;
+using Assets.GameFramework.Item.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,10 +10,10 @@ using UnityEngine.UI;
 namespace Assets.GameProject_1.UI
 {
 
-    public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class UIDragItem : GFrameworkEntityBase, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public UIDropSlot currentSlot;
-        public GameObject prefab;
+        public GFrameworkEntityBase prefab;
         public Texture2D prefabCursor;
 
         [HideInInspector] 
@@ -32,6 +33,22 @@ namespace Assets.GameProject_1.UI
         {
             if (prefab == null) return null;
             return prefab.GetComponent<IItem>();
+        }
+
+        public IGFrameworkEntityBase GetCurrentEntity()
+        {
+            if (prefab == null) return null;
+            return prefab.GetComponent<IGFrameworkEntityBase>();
+        }
+
+        public override List<KeyValuePair<string, object>> GetEntityFields()
+        {
+            return GetCurrentEntity().GetEntityFields();
+        }
+
+        public override string GetOriginalName()
+        {
+            return GetCurrentEntity().GetOriginalName();
         }
 
         public void OnBeginDrag(PointerEventData eventData)

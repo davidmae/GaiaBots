@@ -11,6 +11,9 @@ TagManager:
   - UIRoot
   - Critter
   - Obstacle
+  - InfoPanel
+  - MapCanvas
+  - WorldManager
   layers:
   - Default
   - TransparentFX

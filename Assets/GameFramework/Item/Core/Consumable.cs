@@ -5,6 +5,7 @@ using Assets.GameFramework.Senses.Core;
 using Assets.GameFramework.Status.Core;
 using Assets.GameFramework.UI;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.GameFramework.Item.Core
@@ -24,10 +25,10 @@ namespace Assets.GameFramework.Item.Core
             return null;
         }
 
-        public virtual void Detect(ActorBase actor, SenseBase senseBase)
+        public virtual bool Detect(ActorBase actor, SenseBase senseBase)
         {
             if (this == null || this.ToString() == "null")
-                return;
+                return false;
 
             if (!actor.DetectableQueue.Contains(this))
                 actor.DetectableQueue.Add(this);
@@ -38,16 +39,20 @@ namespace Assets.GameFramework.Item.Core
                 actor.Behaviour.StateMachine.NextState = Behaviour.Core.StateMachine_BaseStates.GoingToItem;
                 actor.Behaviour.StateMachine.Update();
             }
+
+            return true;
         }
 
         public Vector3 GetPosition() => transform.position;
         public int GetCurrentDurability() => Durability;
         public float GetBonusValue() => BonusValue;
         public int MinusOneDurabilityPoint() => Durability == -1 ? Durability : --Durability;
-
-        public bool Equals(IItem item)
+        
+        public override bool Equals(IGFrameworkEntityBase item)
         {
             var consumable = item as IConsumable;
+
+            if (consumable == null) return false;
 
             return
                 GetType().BaseType == consumable.GetType().BaseType &&
@@ -56,11 +61,21 @@ namespace Assets.GameFramework.Item.Core
                 GetCurrentDurability() == consumable.GetCurrentDurability();
         }
 
-        public object GetItemFields()
+        public override List<KeyValuePair<string, object>> GetEntityFields()
         {
-            return "{ Durability : " + Durability + ", BonusValue : " + BonusValue + " }";
+            return new List<KeyValuePair<string, object>>()
+            {
+                new KeyValuePair<string, object>("Durability", Durability),
+                new KeyValuePair<string, object>("BonusValue", BonusValue)
+            };
+        }
+
+        public override GFrameworkEntityBase DeepCopy()
+        {
+            var item = Instantiate(this);
+            item.gameObject.SetActive(true);
+            return item;
         }
     }
-
 
 }

@@ -70,19 +70,21 @@ namespace Assets.GameProject_1.States
                 {
                     Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
                     Actor.Behaviour.StateMachine.UpdateStates(move: true);
-                    Actor.Behaviour.StateMachine.Update();
+                    //Actor.Behaviour.StateMachine.Update();
                 }
                 else
                 {
-                    Actor.Senses[0].Detect(Actor, nextDetectable);
+                    if (!Actor.Senses[0].Detect(Actor, nextDetectable))
+                        Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
                 }
             }
             else
             {
                 Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.StayFront;
                 Actor.Behaviour.StateMachine.UpdateStates(stayfront: true);
-                Actor.Behaviour.StateMachine.Update();
             }
+            
+            Actor.Behaviour.StateMachine.Update();
 
             yield return null;
         }
@@ -227,14 +229,18 @@ namespace Assets.GameProject_1.States
             {
                 Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
                 Actor.Behaviour.StateMachine.UpdateStates(move: true);
-                Actor.Behaviour.StateMachine.Update();
+                //Actor.Behaviour.StateMachine.Update();
             }
             else
             {
-                Actor.Senses[0].Detect(Actor, nextDetectable);
+                if (!Actor.Senses[0].Detect(Actor, nextDetectable))
+                    Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.Idle;
+
                 //Actor.Behaviour.StateMachine.NextState = StateMachine_BaseStates.GoingToItem;
                 //Actor.Behaviour.StateMachine.UpdateStates(gotoItem: true);
             }
+
+            Actor.Behaviour.StateMachine.Update();
 
             yield return null;
         }
@@ -432,7 +438,6 @@ namespace Assets.GameProject_1.States
                 //Success = true
                 if (actorBounds.Intersects(targetBounds))
                     done = true;
-
                 
                 //Success = true
                 var distance = Vector3.Distance(Actor.transform.position, detectable.GetPosition());
@@ -448,7 +453,6 @@ namespace Assets.GameProject_1.States
 
                 yield return null;
             }
-
         }
 
         private IEnumerator CheckIfActorFinishConsumable(IConsumable consumable)

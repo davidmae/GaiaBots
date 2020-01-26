@@ -1,4 +1,5 @@
-﻿using Assets.GameFramework.UI;
+﻿using Assets.GameFramework;
+using Assets.GameFramework.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +9,7 @@ using UnityEngine.EventSystems;
 namespace Assets.GameProject_1.UI
 {
 
-    public class UIDropSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+    public class UIDropSlot : GFrameworkEntityBase, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         // Reference to the item inside slot.
         public UIDragItem currentItem;
@@ -34,13 +35,15 @@ namespace Assets.GameProject_1.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             cursorManager.SetCursor(cursorManager.defaultCursor);
+            cursorManager.hoverEntity = null;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.Log(currentItem?.GetCurrentItem().GetItemFields());
             cursorManager.SetCursor(cursorManager.hoverItemCursor);
+            cursorManager.hoverEntity = currentItem?.prefab;
         }
+
     }
 
 }
