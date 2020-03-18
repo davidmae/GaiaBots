@@ -21,6 +21,9 @@ namespace Assets.GameProject_1.States
     {
         ActorBase Actor;
 
+        float currentTime;
+        Vector3 lastPosition;
+
         public StatesDictionary SelectedStates { get; private set; }
 
         public StatesFactory(ActorBase actor, Action<StatesFactory, StatesDictionary> states)
@@ -387,8 +390,20 @@ namespace Assets.GameProject_1.States
             {
                 var actorMovement = Actor.Behaviour.Movement;
 
-                if (actorMovement.ArrivedToPosition(Actor.transform.position, actorMovement.Navigation.NavigatorProps.stoppingDistance))
+                //if (actorMovement.ArrivedToPosition(Actor.transform.position, actorMovement.Navigation.NavigatorProps.stoppingDistance))
+                if (actorMovement.ArrivedToPosition(Actor.transform.position, actorMovement.CritterData.StopingDistance))
                     done = true;
+                
+                //Avoid blocked movement
+                if (currentTime > 3f)
+                {
+                    currentTime = 0f;
+                    if (Vector3.Distance(Actor.transform.position, lastPosition) < 1f)
+                        done = true;
+                }
+
+                currentTime += Time.deltaTime;
+                lastPosition = Actor.transform.position;
 
                 yield return null;
             }

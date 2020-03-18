@@ -21,7 +21,7 @@ using UnityEngine.UI;
 
 namespace Assets.GameProject_1.Critter
 {
-    [RequireComponent(typeof(MyNavigator))]
+    //[RequireComponent(typeof(MyNavigator))]
     [RequireComponent(typeof(Rigidbody))]
     public class CritterBase : ActorBase
     {
@@ -47,12 +47,17 @@ namespace Assets.GameProject_1.Critter
 
         private void Awake()
         {
-            var navigator = new MyNavigator(GetComponent<NavMeshAgent>(), navoptions =>
+            //var navigator = new MyNavigator(GetComponent<NavMeshAgent>(), navoptions =>
+            //{
+            //    navoptions.speed = critterData.Speed;
+            //    navoptions.acceleration = critterData.Acceleration;
+            //    navoptions.stoppingDistance = critterData.StopingDistance;
+            //});
+
+            var navigator = new MyNavigatorPathfind()
             {
-                navoptions.speed = critterData.Speed;
-                navoptions.acceleration = critterData.Acceleration;
-                navoptions.stoppingDistance = critterData.StopingDistance;
-            });
+                Destinator = GetComponent<Pathfinding.AIDestinationSetter>()
+            };
 
             var statesFactory = new StatesFactory(this, (factory, states) =>
             {
@@ -69,7 +74,7 @@ namespace Assets.GameProject_1.Critter
             Behaviour = new ActorBehaviour()
             {
                 Actor = this,
-                Movement = new MovableAI(navigator),
+                Movement = new MovableAI(navigator) { CritterData = critterData }, //new MovableAI(navigator),
                 StateMachine = new StateMachine(this, statesFactory.SelectedStates),
                 HostilityBehaviour = ActorBehaviour.PrepareHostilityBehaviour(critterData.Hostility)
             };
@@ -91,11 +96,15 @@ namespace Assets.GameProject_1.Critter
             camera = FindObjectOfType<Camera>();
 
             base.cursorManager = FindObjectOfType<CursorManager>();
-            base.groundCollider = GameObject.FindGameObjectWithTag("Ground").GetComponent<Collider>();
+
+
         }
 
         private void Start()
         {
+            //TODO: Get ground collider dynamically when is shifting chunk
+            base.groundCollider = GameObject.FindGameObjectWithTag("Ground").GetComponent<Collider>();
+
             Behaviour.StateMachine.Start();
         }
 

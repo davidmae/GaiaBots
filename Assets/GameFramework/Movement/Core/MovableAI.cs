@@ -19,8 +19,8 @@ namespace Assets.GameFramework.Movement.Core
             {
                 do
                 {
-                    float x = UnityEngine.Random.Range(-20, 20);
-                    float z = UnityEngine.Random.Range(-20, 20);
+                    float x = UnityEngine.Random.Range(MovementStaticsValues.XRange[0], MovementStaticsValues.XRange[1]);
+                    float z = UnityEngine.Random.Range(MovementStaticsValues.ZRange[0], MovementStaticsValues.ZRange[1]);
                     position = new Vector3(x, 0, z);
                 }
                 while (Physics.OverlapSphere(position, 4f).Where(c => c.CompareTag("Obstacle")).Count() > 0);

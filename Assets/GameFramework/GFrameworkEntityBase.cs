@@ -12,7 +12,9 @@ namespace Assets.GameFramework
 
         protected CursorManager cursorManager;
         protected bool cursorBinding = false;
-        protected Collider groundCollider;
+        public Collider groundCollider;
+
+        //protected MapGenerator
 
         public event Action OnUpdateEntity;
 
@@ -93,6 +95,10 @@ namespace Assets.GameFramework
             return entity;
         }
 
+        public void SetCollider(Collider newCollider)
+        {
+            groundCollider = newCollider;
+        }
 
         // Mouse events/functions
 
@@ -122,10 +128,9 @@ namespace Assets.GameFramework
             DraggingItem();
         }
 
-        protected void DraggingItem()
+        protected virtual void DraggingItem()
         {
-            RaycastHit hit;
-            if (groundCollider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 200.0F) &&
+            if (groundCollider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 200.0F) &&
                 hit.collider.gameObject.CompareTag("Ground"))
             {
                 transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);

@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StatusType: 0
   UpdateMethod: 1
-  Current: 25
+  Current: 10
   Treshold: 25
   MaxValue: 50

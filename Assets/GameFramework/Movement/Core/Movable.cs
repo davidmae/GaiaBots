@@ -1,4 +1,5 @@
 ﻿using Assets.GameFramework.Behaviour.Interfaces;
+using Assets.GameProject_1.Status;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace Assets.GameFramework.Movement.Core
     {
         public Vector3 Target { get; set; }
         public MyNavigator Navigation { get; set; }
+        public CritterData CritterData { get; set; }
+
 
         public void SetNextTarget(float x, float y, float z)
              => Target = new Vector3(x, 0, z);
@@ -44,5 +47,6 @@ namespace Assets.GameFramework.Movement.Core
                 NavigateToTarget();
             }
         }
+
     }
 }

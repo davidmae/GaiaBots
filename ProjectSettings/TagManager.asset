@@ -14,6 +14,7 @@ TagManager:
   - InfoPanel
   - MapCanvas
   - WorldManager
+  - MapButtonAgent
   layers:
   - Default
   - TransparentFX
@@ -23,8 +24,8 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
+  - Chunk00
+  - Chunk01
   - 
   - 
   - 
