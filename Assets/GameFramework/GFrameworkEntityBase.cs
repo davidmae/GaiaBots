@@ -10,7 +10,7 @@ namespace Assets.GameFramework
         public Texture2D entityTexture;
         public Texture2D cursorTexture;
 
-        protected CursorManager cursorManager;
+        public CursorManager cursorManager;
         protected bool cursorBinding = false;
         public Collider groundCollider;
 
@@ -109,7 +109,10 @@ namespace Assets.GameFramework
                 cursorManager.removeEntity = true;
                 cursorManager.selectedEntity = this;
             }
+            else
+                cursorManager.selectedEntity = this;
         }
+
 
         private void OnMouseEnter()
         {

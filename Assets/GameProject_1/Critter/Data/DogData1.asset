@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Specie: 1
   Name: Dog
-  Speed: 1
+  Speed: 3
   Acceleration: 30
   StopingDistance: 1.8
-  Hostility: {fileID: 11400000, guid: 742d2329c58325c4bb8a46239e03eeb3, type: 2}
+  Hostility: {fileID: 11400000, guid: 2d79f4c2dcc5f76469ad586756850b39, type: 2}

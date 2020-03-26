@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Assets.GameProject_1.Map
 {
@@ -12,23 +13,28 @@ namespace Assets.GameProject_1.Map
     {
         public enum ChunkDirection { None, Right, Bottom, Left, Top }
 
-        public Chunk InitialChunk;
-        public Chunk Chunk;
         public int ChunksX;
         public int ChunksY;
+        public Chunk InitialChunk;
 
-        ChunkDirection chunkDirection;
+        Chunk Chunk;
         Chunk[,] ChunkMatrix;
+        ChunkDirection chunkDirection;
+        
+        event Action hideChunks;
 
         private void Awake()
         {
+            Chunk = Resources.Load<Chunk>("Chunk");
+
             ChunkMatrix = new Chunk[ChunksX, ChunksY];
 
             ChunkMatrix[0, 0] = InitialChunk;
 
             var position = Chunk.transform.position;
             position.x = InitialChunk.transform.localScale.x;
-
+            position.y = 0f;
+           
             for (int posX = 0; posX < ChunksX; ++posX)
             {
                 for (int posY = 0; posY < ChunksY; ++posY)
@@ -39,12 +45,13 @@ namespace Assets.GameProject_1.Map
                     var newchunk = Instantiate(Chunk, position, Quaternion.identity);
                     newchunk.transform.parent = gameObject.transform;
 
+                    //newchunk.gameObject.AddComponent<NavMeshSurface>();
                     newchunk.positionMatrix.x = posX;
                     newchunk.positionMatrix.y = posY;
                     newchunk.name = $"Chunk{posX}{posY}";
-                    
-                    newchunk.gameObject.SetActive(false);
 
+                    hideChunks += () => newchunk.gameObject.SetActive(false);
+                    
                     ChunkMatrix[posX, posY] = newchunk;
 
                     position.x += Chunk.transform.localScale.x;
@@ -56,6 +63,9 @@ namespace Assets.GameProject_1.Map
 
             //Chunk.gameObject.SetActive(false);
             //ChunkMatrix[0, 0].gameObject.SetActive(true);
+
+            ChunkMatrix[0, 0].GetComponent<NavMeshSurface>().BuildNavMesh();
+            hideChunks();
 
             var collider = InitialChunk.GetComponent<BoxCollider>();
             collider.center = new Vector3((ChunksX - 1) * 0.5f, 1f, (ChunksY - 1) * -0.5f);

@@ -6,14 +6,13 @@ namespace Assets.GameProject_1.Map
     public class MapButton : MonoBehaviour
     {
         public ChunkDirection chunkDirection;
+        
         private MapGenerator mapGenerator;
         private MeshRenderer meshRenderer;
 
         private void Awake()
         {
-            mapGenerator = GameObject
-                .FindGameObjectWithTag("WorldManager").GetComponent<MapGenerator>();
-
+            mapGenerator = GameObject.FindObjectOfType<MapGenerator>();
             meshRenderer = GetComponent<MeshRenderer>();
         }
 

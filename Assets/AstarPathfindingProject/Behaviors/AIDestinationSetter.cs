@@ -16,7 +16,7 @@ namespace Pathfinding {
 	public class AIDestinationSetter : VersionedMonoBehaviour {
 		/// <summary>The object that the AI should move to</summary>
 		public Transform target;
-        public Vector3 position;
+		public Vector3 position;
 		IAstarAI ai;
 
 		void OnEnable () {
@@ -34,11 +34,7 @@ namespace Pathfinding {
 
 		/// <summary>Updates the AI's destination every frame</summary>
 		void Update () {
-			if (target != null && ai != null) ai.destination = target.position;
-            if (target == null)
-            {
-                if (position != null && ai != null) ai.destination = position;
-            }
+			if (position != null && ai != null) ai.destination = position;
 		}
 	}
 }

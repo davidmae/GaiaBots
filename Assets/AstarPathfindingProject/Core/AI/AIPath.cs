@@ -359,7 +359,7 @@ namespace Pathfinding {
 				// How fast to move depending on the distance to the destination.
 				// Move slower as the character gets closer to the destination.
 				// This is always a value between 0 and 1.
-				slowdown = distanceToEnd < slowdownDistance ? Mathf.Sqrt(distanceToEnd / slowdownDistance) : 1;
+				slowdown = distanceToEnd < slowdownDistance? Mathf.Sqrt (distanceToEnd / slowdownDistance) : 1;
 
 				if (reachedEndOfPath && whenCloseToDestination == CloseToDestinationMode.Stop) {
 					// Slow down as quickly as possible
@@ -426,7 +426,7 @@ namespace Pathfinding {
 			return position;
 		}
 
-	#if UNITY_EDITOR
+#if UNITY_EDITOR
 		[System.NonSerialized]
 		int gizmoHash = 0;
 
@@ -462,7 +462,7 @@ namespace Pathfinding {
 				Draw.Gizmos.CircleXZ(Vector3.zero, endReachedDistance, Color.Lerp(GizmoColor, Color.red, 0.8f) * new Color(1, 1, 1, alpha));
 			}
 		}
-	#endif
+#endif
 
 		protected override int OnUpgradeSerializedData (int version, bool unityThread) {
 			base.OnUpgradeSerializedData(version, unityThread);

@@ -1,4 +1,5 @@
 ﻿using System;
+using Pathfinding;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,12 +16,21 @@ namespace Assets.GameFramework.Movement.Core
         {
         }
 
-        public Pathfinding.AIDestinationSetter Destinator { get; set; }
+        public MyNavigatorPathfind(AIDestinationSetter aiSetter, AIPath aiPath, Action<AIPath> aipathoptions)
+        {
+            this.Destinator = aiSetter;
+            this.PathAI = aiPath;
+            aipathoptions(this.PathAI);
+        }
+
+        public AIDestinationSetter Destinator { get; set; }
+        public AIPath PathAI { get; set; }
 
         public override void Restart() => Destinator.position = currentTarget;
         public override void Stop() => Destinator.position = Destinator.position;
         public override void SetDestination(Vector3 target) { Destinator.position = target; currentTarget = target; }
-        //public override void SetSpeed(float speed) => navigator.speed = speed;
+        public override void SetSpeed(float speed) => PathAI.maxSpeed = speed;
+        public override float GetSpeed() => PathAI.maxSpeed;
 
     }
 }

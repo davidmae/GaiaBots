@@ -342,7 +342,7 @@ namespace Assets.GameProject_1.States
             }
 
             Actor.Behaviour.Movement.Navigation.SetSpeed(speed);
-            Debug.Log("speed: " + Actor.Behaviour.Movement.Navigation.NavigatorProps.speed);
+            Debug.Log("speed: " + Actor.Behaviour.Movement.Navigation.GetSpeed());
 
             Actor.Behaviour.StateMachine.Update();
 

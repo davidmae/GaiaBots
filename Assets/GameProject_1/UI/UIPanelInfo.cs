@@ -30,7 +30,12 @@ namespace Assets.GameProject_1.UI
 
         void Update()
         {
-            SetTitle(cursorManager.hoverEntity ?? null);
+            if (cursorManager.hoverEntity)
+                SetTitle(cursorManager.hoverEntity);
+            else if (cursorManager.selectedEntity)
+                SetTitle(cursorManager.selectedEntity);
+            else
+                SetTitle(null);
         }
 
         public void SetTitle(GFrameworkEntityBase entity)

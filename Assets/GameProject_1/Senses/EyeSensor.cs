@@ -77,6 +77,7 @@ namespace Assets.GameProject_1.Senses
                 //}
 
                 //Debug.Log($"{Actor.name} ::: Target to NULL");
+                
                 Target = null;
             }
         }

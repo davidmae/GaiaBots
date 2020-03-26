@@ -20,6 +20,7 @@ namespace Assets.GameFramework.Movement.Core
         public virtual void Stop() => navigator.isStopped = true;
         public virtual void SetDestination(Vector3 target) => navigator.SetDestination(target);
         public virtual void SetSpeed(float speed) => navigator.speed = speed;
+        public virtual float GetSpeed() => navigator.speed;
 
         public NavMeshAgent NavigatorProps { get => navigator; }
     }

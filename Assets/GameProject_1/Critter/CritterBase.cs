@@ -10,6 +10,7 @@ using Assets.GameFramework.UI;
 using Assets.GameProject_1.Senses;
 using Assets.GameProject_1.States;
 using Assets.GameProject_1.Status;
+using Pathfinding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,8 +22,8 @@ using UnityEngine.UI;
 
 namespace Assets.GameProject_1.Critter
 {
-    //[RequireComponent(typeof(MyNavigator))]
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CritterPointClickMove))]
     public class CritterBase : ActorBase
     {
         [Header("Data initialization")]
@@ -47,17 +48,23 @@ namespace Assets.GameProject_1.Critter
 
         private void Awake()
         {
-            //var navigator = new MyNavigator(GetComponent<NavMeshAgent>(), navoptions =>
-            //{
-            //    navoptions.speed = critterData.Speed;
-            //    navoptions.acceleration = critterData.Acceleration;
-            //    navoptions.stoppingDistance = critterData.StopingDistance;
-            //});
-
-            var navigator = new MyNavigatorPathfind()
+            var navigator = new MyNavigator(GetComponent<NavMeshAgent>(), navoptions =>
             {
-                Destinator = GetComponent<Pathfinding.AIDestinationSetter>()
-            };
+                navoptions.speed = critterData.Speed;
+                navoptions.acceleration = critterData.Acceleration;
+                navoptions.stoppingDistance = critterData.StopingDistance;
+            });
+
+            //var navigator = new MyNavigatorPathfind(
+            //    GetComponent<AIDestinationSetter>(),
+            //    GetComponent<AIPath>(),
+            //    aioptions =>
+            //    {
+            //        aioptions.maxSpeed = critterData.Speed;
+            //        aioptions.maxAcceleration = critterData.Acceleration;
+            //        aioptions.endReachedDistance = critterData.StopingDistance;
+            //    });
+
 
             var statesFactory = new StatesFactory(this, (factory, states) =>
             {

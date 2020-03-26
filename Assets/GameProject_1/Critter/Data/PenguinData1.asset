@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Specie: 0
   Name: Penguin
-  Speed: 1
+  Speed: 3
   Acceleration: 30
   StopingDistance: 1.8
   Hostility: {fileID: 0}
