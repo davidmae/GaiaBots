@@ -14,6 +14,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Assets.GameFramework.Item.Core;
 using Assets.GameFramework.Status.Core;
+using TMPro;
 
 namespace Assets.GameProject_1.UI
 {
@@ -26,6 +27,9 @@ namespace Assets.GameProject_1.UI
         public UIDropSlot selectedSlot;
         public UIDragItem selectedDragItem;
 
+        public TextMeshProUGUI huntCounter;
+
+
         private Vector3 screenPoint;
         private Vector3 offset;
 
@@ -34,6 +38,9 @@ namespace Assets.GameProject_1.UI
         private Animator animator;
 
         private bool spawn = false;
+
+        private Action onRestoreItemAfterSpawn;
+
 
         private void Awake()
         {
@@ -76,45 +83,93 @@ namespace Assets.GameProject_1.UI
 
                 if (spawned)
                 {
-                    if (Convert.ToInt32(selectedDragItem.counter.text) <= 1)
-                    {
-                        Destroy(selectedDragItem.gameObject);
-                        spawn = false;
-                        entityToSpawn = null;
-                        cursorManager.selectedEntity = null;
-                        cursorManager.keepLastTexture = false;
-                        cursorManager.SetCursor(cursorManager.defaultCursor);
-                        selectedSlot.currentItem = null;
-                        selectedSlot = null;
-                        selectedDragItem = null;
-                    }
-                    else
-                        selectedDragItem.counter.text = (Convert.ToInt32(selectedDragItem.counter.text) - 1).ToString();
+                    onRestoreItemAfterSpawn();
                 }
             }
 
-
         }
 
-        //public void OnPointerClick(PointerEventData eventData)
-        //{
-        //    var results = new List<RaycastResult>();
-        //    graphicRaycaster.Raycast(eventData, results);
 
-        //    foreach (var hit in results)
-        //    {
-        //        var slot = hit.gameObject.GetComponent<UIDropSlot>();
-        //        if (slot)
-        //        {
-        //            //itemToSpawn = Instantiate(itemToSpawn, new Vector3(hit.worldPosition.x, slot.currentItem.prefab.transform.position.y, hit.worldPosition.z), Quaternion.identity);
-        //            //itemToSpawn.GetComponent<Apple>().BindToCursor(true);
-        //            //Cursor.SetCursor(null, new Vector2(hit.worldPosition.x + 3f, hit.worldPosition.z + 3f), CursorMode.Auto);
+        // -----------------
+        public void RestoreValuesDragItemAfterSpawn()
+        {
+            if (Convert.ToInt32(selectedDragItem.counter.text) <= 1)
+            {
+                Destroy(selectedDragItem.gameObject);
+                spawn = false;
+                entityToSpawn = null;
+                cursorManager.selectedEntity = null;
+                cursorManager.keepLastTexture = false;
+                cursorManager.SetCursor(cursorManager.defaultCursor);
+                selectedSlot.currentItem = null;
+                selectedSlot = null;
+                selectedDragItem = null;
+            }
+            else
+                selectedDragItem.counter.text = (Convert.ToInt32(selectedDragItem.counter.text) - 1).ToString();
+        }
 
-        //            cursorManager.SetCursor(slot.currentItem.prefabCursor);
-        //            spawn = true;
-        //        }
-        //    }
-        //}
+        public void ChangeCursorToCurrentPrefab(UIDropSlot slot)
+        {
+            if (slot.currentItem == null)
+                return;
+
+            entityToSpawn = slot.currentItem.prefab;
+            selectedSlot = slot;
+            selectedDragItem = slot.currentItem;
+            cursorManager.SetCursor(slot.currentItem.prefabCursor);
+            spawn = true;
+
+            cursorManager.selectedEntity = entityToSpawn;
+
+            onRestoreItemAfterSpawn = RestoreValuesDragItemAfterSpawn;
+        }
+        // -----------------
+
+
+        // -----------------
+        public void RestoreValuesHuntItemAfterSpawn()
+        {
+            if (Convert.ToInt32(huntCounter.text) <= 1)
+            {
+                spawn = false;
+                entityToSpawn = null;
+                cursorManager.selectedEntity = null;
+                cursorManager.keepLastTexture = false;
+                cursorManager.SetCursor(cursorManager.defaultCursor);
+            }
+         
+            var count = Convert.ToInt32(huntCounter.text) - 1;
+            huntCounter.text = count.ToString();
+        }
+
+        // Called from button event
+        public void ChangeCursorToHuntMode()
+        {
+            if (Convert.ToInt32(huntCounter.text) == 0) return;
+
+            entityToSpawn = Resources.Load<GFrameworkEntityBase>("Celltrap");
+            cursorManager.SetCursor(entityToSpawn.cursorTexture);
+            spawn = true;
+            cursorManager.selectedEntity = entityToSpawn;
+            cursorManager.keepLastTexture = true;
+            cursorManager.removeEntity = false;
+
+            onRestoreItemAfterSpawn = RestoreValuesHuntItemAfterSpawn;
+
+        }
+        // -----------------
+
+
+
+        // Called from button event
+        public void SetRemoveEntity(bool val)
+        {
+            if (cursorManager.selectedEntity == null)
+                return;
+
+            cursorManager.removeEntity = val;
+        }
 
         /// Actualiza el sidebar con los objetos que recogemos/destruimos en el mapa
         public void UpdateItems(GFrameworkEntityBase entity)
@@ -146,7 +201,7 @@ namespace Assets.GameProject_1.UI
             dragItemScript.prefab.gameObject.name = dragItemScript.prefab.gameObject.name.Replace("(Clone)", "");
             dragItemScript.prefab.gameObject.SetActive(false);
             dragItemScript.prefabCursor = entityBase.cursorTexture;
-            dragItemScript.counter.text = (Convert.ToInt32(dragItemScript.counter.text) +1).ToString();
+            dragItemScript.counter.text = (Convert.ToInt32(dragItemScript.counter.text) + 1).ToString();
             dragItemScript.name = dragItemScript.name.Replace("(Clone)", "");
 
             // Indica la textura que tendrá el item en la UI del slot
@@ -156,20 +211,6 @@ namespace Assets.GameProject_1.UI
 
             // Destruye el item que acabamos de recoger
             Destroy(cursorManager.selectedEntity.gameObject);
-        }
-
-        public void ChangeCursorToCurrentPrefab(UIDropSlot slot)
-        {
-            if (slot.currentItem == null)
-                return;
-
-            entityToSpawn = slot.currentItem.prefab;
-            selectedSlot = slot;
-            selectedDragItem = slot.currentItem;
-            cursorManager.SetCursor(slot.currentItem.prefabCursor);
-            spawn = true;
-
-            cursorManager.selectedEntity = entityToSpawn;
         }
 
         public void ShowSidebar()

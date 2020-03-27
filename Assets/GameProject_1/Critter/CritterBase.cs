@@ -23,7 +23,6 @@ using UnityEngine.UI;
 namespace Assets.GameProject_1.Critter
 {
     [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(CritterPointClickMove))]
     public class CritterBase : ActorBase
     {
         [Header("Data initialization")]
@@ -103,20 +102,20 @@ namespace Assets.GameProject_1.Critter
             camera = FindObjectOfType<Camera>();
 
             base.cursorManager = FindObjectOfType<CursorManager>();
-
+            base.groundCollider = GameObject.FindGameObjectWithTag("Ground").GetComponent<Collider>();
 
         }
 
         private void Start()
         {
-            //TODO: Get ground collider dynamically when is shifting chunk
-            base.groundCollider = GameObject.FindGameObjectWithTag("Ground").GetComponent<Collider>();
-
             Behaviour.StateMachine.Start();
         }
 
         private void Update()
         {
+            if (cursorManager?.selectedEntity != null && cursorManager.selectedEntity.name == name)
+                if (selectionField != null) selectionField.enabled = true;
+
             if (animator != null)
                 animator.SetInteger("Walk", Behaviour.StateMachine.CurrentState.IsMoving ? 1 : 0);
 

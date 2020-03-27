@@ -1,6 +1,7 @@
 ﻿using Assets.GameFramework.UI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.GameFramework
@@ -9,15 +10,19 @@ namespace Assets.GameFramework
     {
         public Texture2D entityTexture;
         public Texture2D cursorTexture;
+        public SpriteRenderer selectionField;
+        public bool draggable;
 
+        /*[HideInInspector] */
         public CursorManager cursorManager;
-        protected bool cursorBinding = false;
+        /*[HideInInspector] */
         public Collider groundCollider;
+
+        protected bool cursorBinding = false;
 
         //protected MapGenerator
 
         public event Action OnUpdateEntity;
-
 
         public void OnUpdate()
         {
@@ -110,25 +115,33 @@ namespace Assets.GameFramework
                 cursorManager.selectedEntity = this;
             }
             else
+            {
+                if (selectionField != null) selectionField.enabled = true;
                 cursorManager.selectedEntity = this;
+            }
         }
-
 
         private void OnMouseEnter()
         {
+            if (cursorManager.removeEntity == true)
+                return;
+
+            if (selectionField != null) selectionField.enabled = true;
             cursorManager.SetCursor(cursorManager.hoverItemCursor);
             cursorManager.hoverEntity = this;
         }
 
         private void OnMouseExit()
         {
+            if (selectionField != null) selectionField.enabled = false;
             cursorManager.SetCursor(cursorManager.defaultCursor);
             cursorManager.hoverEntity = null;
         }
 
         private void OnMouseDrag()
         {
-            DraggingItem();
+            if (draggable)
+                DraggingItem();
         }
 
         protected virtual void DraggingItem()

@@ -87,7 +87,7 @@ namespace Assets.GameFramework.Senses.Core
         public virtual bool Detect(ActorBase actor, IDetectable detectable)
         {
             Target = null;
-            TargetName = "";
+            //TargetName = "";
 
             if (StopSensor)
                 return false;

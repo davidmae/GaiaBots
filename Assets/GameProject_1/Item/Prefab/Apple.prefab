@@ -125,5 +125,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entityTexture: {fileID: 2800000, guid: bfb7467ebe9604c4bb77df91f41138b8, type: 3}
   cursorTexture: {fileID: 2800000, guid: bfb7467ebe9604c4bb77df91f41138b8, type: 3}
+  selectionField: {fileID: 0}
+  draggable: 1
+  cursorManager: {fileID: 0}
+  groundCollider: {fileID: 0}
   Durability: 3
   BonusValue: 5
